@@ -26,7 +26,9 @@
     "previous": "上一个",
     "next": "下一个",
     "collapse": "折叠",
-    "expand": "展开"
+    "expand": "展开",
+    "retry": "重试",
+    "searching": "搜索中…"
   },
   "settings": {
     "tabs": {
@@ -82,7 +84,11 @@
       "fontWeight": "字体粗细",
       "fontWeightDesc": "终端字符的笔画粗细",
       "integratedShell": "集成终端 Shell",
+      "shellNoTrack": "此 Shell 不支持命令块和目录跟踪。",
+      "shellWsl": "集成终端使用的 Shell。WSL 空间使用发行版的登录 Shell。已打开的标签页保持原有 Shell。",
+      "shellDefault": "新终端标签页使用的 Shell。已打开的标签页保持原有 Shell。",
       "workspaceEnv": "工作区环境",
+      "workspaceEnvDesc": "新空间运行的位置，终端和 AI 代理均适用：Windows 或 WSL 发行版。已有空间保持原有设置；可随时从状态栏切换。",
       "letterSpacing": "字符间距",
       "letterSpacingDesc": "字符之间的额外水平间距(像素)。负值可用于收紧 Nerd Font。",
       "agents": "代理",
@@ -194,7 +200,8 @@
       "viewOnGithub": "在 GitHub 查看",
       "reportIssue": "报告问题",
       "localization": "汉化说明",
-      "localizationDesc": "本软件基于 terax-ai（Apache License 2.0）汉化修改。"
+      "localizationDesc": "本软件基于 terax-ai（Apache License 2.0）汉化修改。",
+      "bundleID": "Bundle ID"
     },
     "updater": {
       "upToDate": "已是最新版本",
@@ -236,6 +243,60 @@
         "enable": "启用 {{name}} 语言服务器",
         "disable": "禁用 {{name}} 语言服务器"
       }
+    },
+    "editor": {
+      "title": "编辑器",
+      "description": "编辑行为、保存与语言服务器。",
+      "appearance": "外观",
+      "fontSize": "字体大小",
+      "fontSizeDesc": "代码编辑器的字号。",
+      "px": "像素",
+      "editing": "编辑",
+      "vimMode": "Vim 模式",
+      "vimModeDesc": "在代码编辑器中启用 Vim 键位。",
+      "wordWrap": "自动换行",
+      "wordWrapDesc": "长行换行显示,避免横向滚动。",
+      "saving": "保存",
+      "autoSave": "自动保存",
+      "autoSaveDesc": "检测到更改后延迟自动保存文件。",
+      "autoSaveDelay": "自动保存延迟",
+      "autoSaveDelayDesc": "未保存的更改在自动保存前的延迟时间。",
+      "ms": "毫秒",
+      "formatOnSave": "保存时格式化",
+      "formatOnSaveDesc": "通过下方选择的格式化器在显式保存(Cmd+S / :w)时格式化文件。",
+      "formatter": "格式化器",
+      "formatterDesc": "语言服务器在写入前格式化缓冲区;外部工具在保存后对文件运行。",
+      "formatterLsp": "语言服务器",
+      "formatterCustom": "自定义命令",
+      "customCommand": "自定义命令",
+      "customCommandDesc": "对已保存的文件运行;{{file}} 会被替换为带引号的路径(省略时附加在末尾)。",
+      "customCommandPlaceholder": "mytool --fix {{file}}",
+      "languageOverrides": "语言覆写",
+      "languageOverridesDesc": "为指定语言使用不同的格式化器(例如 Python 使用 Ruff)。",
+      "addOverride": "添加覆写",
+      "removeOverride": "移除覆写"
+    },
+    "themes": {
+      "title": "主题",
+      "description": "主题、背景图片与自定义。",
+      "theme": "主题",
+      "create": "新建",
+      "import": "导入 .terax-theme",
+      "importError": "{{file}}: {{error}}",
+      "failedToRead": "读取失败",
+      "editTheme": "编辑 {{name}}",
+      "removeTheme": "移除 {{name}}",
+      "editorTheme": "编辑器主题",
+      "editorThemeDesc": "代码编辑器的语法配色,自动跟随应用主题。",
+      "editorThemeAuto": "自动(跟随应用主题)",
+      "background": "背景",
+      "notAnImage": "{{file}}: 不是图片",
+      "failedToImportImage": "导入图片失败",
+      "replaceImage": "替换图片",
+      "chooseImage": "选择图片",
+      "opacity": "不透明度",
+      "blur": "模糊",
+      "backgroundHint": "拖拽图片到此处或选择一张。本地存储,在设置前不影响默认外观。"
     }
   },
   "ai": {
@@ -451,58 +512,6 @@
         "enable": "启用 {{name}} 语言服务器",
         "disable": "禁用 {{name}} 语言服务器"
       }
-    },
-    "editor": {
-      "title": "编辑器",
-      "description": "编辑行为、保存与语言服务器。",
-      "appearance": "外观",
-      "fontSize": "字体大小",
-      "fontSizeDesc": "代码编辑器的字号。",
-      "px": "像素",
-      "editing": "编辑",
-      "vimMode": "Vim 模式",
-      "vimModeDesc": "在代码编辑器中启用 Vim 键位。",
-      "wordWrap": "自动换行",
-      "wordWrapDesc": "长行换行显示,避免横向滚动。",
-      "saving": "保存",
-      "autoSave": "自动保存",
-      "autoSaveDesc": "检测到更改后延迟自动保存文件。",
-      "autoSaveDelay": "自动保存延迟",
-      "autoSaveDelayDesc": "未保存的更改在自动保存前的延迟时间。",
-      "ms": "毫秒",
-      "formatOnSave": "保存时格式化",
-      "formatOnSaveDesc": "通过下方选择的格式化器在显式保存(Cmd+S / :w)时格式化文件。",
-      "formatter": "格式化器",
-      "formatterDesc": "语言服务器在写入前格式化缓冲区;外部工具在保存后对文件运行。",
-      "customCommand": "自定义命令",
-      "customCommandDesc": "对已保存的文件运行;{{file}} 会被替换为带引号的路径(省略时附加在末尾)。",
-      "customCommandPlaceholder": "mytool --fix {{file}}",
-      "languageOverrides": "语言覆写",
-      "languageOverridesDesc": "为指定语言使用不同的格式化器(例如 Python 使用 Ruff)。",
-      "addOverride": "添加覆写",
-      "removeOverride": "移除覆写"
-    },
-    "themes": {
-      "title": "主题",
-      "description": "主题、背景图片与自定义。",
-      "theme": "主题",
-      "create": "新建",
-      "import": "导入 .terax-theme",
-      "importError": "{{file}}: {{error}}",
-      "failedToRead": "读取失败",
-      "editTheme": "编辑 {{name}}",
-      "removeTheme": "移除 {{name}}",
-      "editorTheme": "编辑器主题",
-      "editorThemeDesc": "代码编辑器的语法配色,自动跟随应用主题。",
-      "editorThemeAuto": "自动(跟随应用主题)",
-      "background": "背景",
-      "notAnImage": "{{file}}: 不是图片",
-      "failedToImportImage": "导入图片失败",
-      "replaceImage": "替换图片",
-      "chooseImage": "选择图片",
-      "opacity": "不透明度",
-      "blur": "模糊",
-      "backgroundHint": "拖拽图片到此处或选择一张。本地存储,在设置前不影响默认外观。"
     }
   },
   "header": {
@@ -566,7 +575,9 @@
       "resetTo": "重置为 {{command}}",
       "hint": "支持别名和参数。",
       "launch_one": "启动 {{count}} 个代理",
-      "launch_other": "启动 {{count}} 个代理"
+      "launch_other": "启动 {{count}} 个代理",
+      "instance": "{{count}} 个实例",
+      "launch": "启动 {{count}} 个代理"
     }
   },
   "commandPalette": {
@@ -826,7 +837,8 @@
     "files": "文件",
     "binary": "二进制",
     "copied": "已复制",
-    "copySha": "复制 SHA"
+    "copySha": "复制 SHA",
+    "filesChanged": "更改了 {{count}} 个文件"
   },
   "spaces": {
     "title": "空间",

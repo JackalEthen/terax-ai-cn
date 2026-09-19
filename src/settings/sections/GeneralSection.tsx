@@ -309,10 +309,10 @@ export function GeneralSection() {
           title={t("settings.general.integratedShell")}
           description={
             shells.find((s) => s.path === terminalShell)?.integrated === false
-              ? "Command blocks and directory tracking are unavailable for this shell."
+              ? t("settings.general.shellNoTrack")
               : wslDistros.length > 0
-                ? "Shell for the integrated terminal. WSL spaces use the distro login shell. Existing tabs keep their shell."
-                : "Shell for new terminal tabs. Existing tabs keep their shell."
+                ? t("settings.general.shellWsl")
+                : t("settings.general.shellDefault")
           }
         >
           <Select
@@ -342,7 +342,7 @@ export function GeneralSection() {
         {(wslDistros.length > 0 || defaultWorkspaceEnv !== "local") && (
           <SettingRow
             title={t("settings.general.workspaceEnv")}
-            description="Where new spaces run, terminal and AI agent alike: Windows or a WSL distro. Existing spaces keep theirs; switch any from the status bar."
+            description={t("settings.general.workspaceEnvDesc")}
           >
             <Select
               value={defaultWorkspaceEnv}

@@ -26,7 +26,9 @@
     "previous": "Previous",
     "next": "Next",
     "collapse": "Collapse",
-    "expand": "Expand"
+    "expand": "Expand",
+    "retry": "Retry",
+    "searching": "Searching…"
   },
   "settings": {
     "tabs": {
@@ -73,7 +75,11 @@
       "fontWeight": "Font weight",
       "fontWeightDesc": "Thickness of terminal characters",
       "integratedShell": "Integrated terminal shell",
+      "shellNoTrack": "Command blocks and directory tracking are unavailable for this shell.",
+      "shellWsl": "Shell for the integrated terminal. WSL spaces use the distro login shell. Existing tabs keep their shell.",
+      "shellDefault": "Shell for new terminal tabs. Existing tabs keep their shell.",
       "workspaceEnv": "Workspace environment",
+      "workspaceEnvDesc": "Where new spaces run, terminal and AI agent alike: Windows or a WSL distro. Existing spaces keep theirs; switch any from the status bar.",
       "letterSpacing": "Letter spacing",
       "letterSpacingDesc": "Extra horizontal space between characters (px). Use negative values to tighten Nerd Fonts.",
       "fontSize": "Font size",
@@ -194,7 +200,8 @@
       "viewOnGithub": "View on GitHub",
       "reportIssue": "Report an issue",
       "localization": "Localization",
-      "localizationDesc": "This software is based on terax-ai (Apache License 2.0) with Chinese localization modifications."
+      "localizationDesc": "This software is based on terax-ai (Apache License 2.0) with Chinese localization modifications.",
+      "bundleID": "Bundle ID"
     },
     "updater": {
       "upToDate": "You're up to date",
@@ -236,6 +243,60 @@
         "enable": "Enable {{name}} language server",
         "disable": "Disable {{name}} language server"
       }
+    },
+    "editor": {
+      "title": "Editor",
+      "description": "Editing behavior, saving, and language servers.",
+      "appearance": "Appearance",
+      "fontSize": "Font size",
+      "fontSizeDesc": "Code editor text size.",
+      "px": "px",
+      "editing": "Editing",
+      "vimMode": "Vim mode",
+      "vimModeDesc": "Enable Vim keybindings in the code editor.",
+      "wordWrap": "Word wrap",
+      "wordWrapDesc": "Wrap long lines instead of scrolling horizontally.",
+      "saving": "Saving",
+      "autoSave": "Auto save",
+      "autoSaveDesc": "Automatically save files after a delay when changes are detected.",
+      "autoSaveDelay": "Auto save delay",
+      "autoSaveDelayDesc": "Delay before unsaved changes are saved automatically.",
+      "ms": "ms",
+      "formatOnSave": "Format on save",
+      "formatOnSaveDesc": "Format the file on explicit save (Cmd+S / :w) with the formatter below.",
+      "formatter": "Formatter",
+      "formatterDesc": "Language server formats the buffer before writing; external tools run on the saved file from your PATH.",
+      "formatterLsp": "Language server",
+      "formatterCustom": "Custom command",
+      "customCommand": "Custom command",
+      "customCommandDesc": "Runs on the saved file; {{file}} is replaced with the quoted path (appended when omitted).",
+      "customCommandPlaceholder": "mytool --fix {{file}}",
+      "languageOverrides": "Language overrides",
+      "languageOverridesDesc": "Use a different formatter for specific languages (e.g. Ruff for Python).",
+      "addOverride": "Add override",
+      "removeOverride": "Remove override"
+    },
+    "themes": {
+      "title": "Themes",
+      "description": "Theme, background image, and customization.",
+      "theme": "Theme",
+      "create": "Create",
+      "import": "Import .terax-theme",
+      "importError": "{{file}}: {{error}}",
+      "failedToRead": "failed to read",
+      "editTheme": "Edit {{name}}",
+      "removeTheme": "Remove {{name}}",
+      "editorTheme": "Editor theme",
+      "editorThemeDesc": "Syntax colors for the code editor. Auto follows the app theme.",
+      "editorThemeAuto": "Auto (match app theme)",
+      "background": "Background",
+      "notAnImage": "{{file}}: not an image",
+      "failedToImportImage": "failed to import image",
+      "replaceImage": "Replace image",
+      "chooseImage": "Choose image",
+      "opacity": "Opacity",
+      "blur": "Blur",
+      "backgroundHint": "Drop an image here or pick one. Stored locally; doesn't affect the default look until set."
     }
   },
   "ai": {
@@ -451,58 +512,6 @@
         "enable": "Enable {{name}} language server",
         "disable": "Disable {{name}} language server"
       }
-    },
-    "editor": {
-      "title": "Editor",
-      "description": "Editing behavior, saving, and language servers.",
-      "appearance": "Appearance",
-      "fontSize": "Font size",
-      "fontSizeDesc": "Code editor text size.",
-      "px": "px",
-      "editing": "Editing",
-      "vimMode": "Vim mode",
-      "vimModeDesc": "Enable Vim keybindings in the code editor.",
-      "wordWrap": "Word wrap",
-      "wordWrapDesc": "Wrap long lines instead of scrolling horizontally.",
-      "saving": "Saving",
-      "autoSave": "Auto save",
-      "autoSaveDesc": "Automatically save files after a delay when changes are detected.",
-      "autoSaveDelay": "Auto save delay",
-      "autoSaveDelayDesc": "Delay before unsaved changes are saved automatically.",
-      "ms": "ms",
-      "formatOnSave": "Format on save",
-      "formatOnSaveDesc": "Format the file on explicit save (Cmd+S / :w) with the formatter below.",
-      "formatter": "Formatter",
-      "formatterDesc": "Language server formats the buffer before writing; external tools run on the saved file from your PATH.",
-      "customCommand": "Custom command",
-      "customCommandDesc": "Runs on the saved file; {{file}} is replaced with the quoted path (appended when omitted).",
-      "customCommandPlaceholder": "mytool --fix {{file}}",
-      "languageOverrides": "Language overrides",
-      "languageOverridesDesc": "Use a different formatter for specific languages (e.g. Ruff for Python).",
-      "addOverride": "Add override",
-      "removeOverride": "Remove override"
-    },
-    "themes": {
-      "title": "Themes",
-      "description": "Theme, background image, and customization.",
-      "theme": "Theme",
-      "create": "Create",
-      "import": "Import .terax-theme",
-      "importError": "{{file}}: {{error}}",
-      "failedToRead": "failed to read",
-      "editTheme": "Edit {{name}}",
-      "removeTheme": "Remove {{name}}",
-      "editorTheme": "Editor theme",
-      "editorThemeDesc": "Syntax colors for the code editor. Auto follows the app theme.",
-      "editorThemeAuto": "Auto (match app theme)",
-      "background": "Background",
-      "notAnImage": "{{file}}: not an image",
-      "failedToImportImage": "failed to import image",
-      "replaceImage": "Replace image",
-      "chooseImage": "Choose image",
-      "opacity": "Opacity",
-      "blur": "Blur",
-      "backgroundHint": "Drop an image here or pick one. Stored locally; doesn't affect the default look until set."
     }
   },
   "header": {
@@ -570,7 +579,9 @@
       "resetTo": "Reset to {{command}}",
       "hint": "Aliases and flags are supported.",
       "launch_one": "Launch {{count}} agent",
-      "launch_other": "Launch {{count}} agents"
+      "launch_other": "Launch {{count}} agents",
+      "instance": "{{count}} instance",
+      "launch": "Launch {{count}} agent"
     }
   },
   "commandPalette": {
@@ -830,7 +841,8 @@
     "files": "Files",
     "binary": "binary",
     "copied": "Copied",
-    "copySha": "Copy SHA"
+    "copySha": "Copy SHA",
+    "filesChanged": "{{count}} file changed"
   },
   "spaces": {
     "title": "Spaces",
