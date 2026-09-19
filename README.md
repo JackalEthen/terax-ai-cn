@@ -5,7 +5,7 @@
   <p><strong>开源轻量级跨平台 AI 原生终端 (ADE)</strong></p>
 
   <p>
-    <img src="https://img.shields.io/badge/版本-v0.8.5--cn-blue" alt="版本" />
+    <img src="https://img.shields.io/badge/版本-v0.8.6--cn-blue" alt="版本" />
     <img src="https://img.shields.io/badge/协议-Apache--2.0-green" alt="协议" />
     <img src="https://img.shields.io/badge/平台-Windows%20%7C%20Linux-lightgrey" alt="平台" />
   </p>
@@ -25,7 +25,7 @@
 
 ## 下载
 
-前往 [Releases](https://github.com/JackalEthen/terax-ai-cn/releases/latest) 页面下载最新安装包。
+前往 [Releases](https://github.com/JackalEthen/terax-ai-cn/releases) 页面下载最新安装包。
 
 | 平台 | 格式 |
 |------|------|
@@ -66,7 +66,7 @@ Terax 是一款开源轻量级 AI 原生终端 (ADE)，基于 Tauri 2 + Rust 和
 
 ### 代码编辑器
 
-- CodeMirror 6，支持所有主流语言（TS/JS、Rust、Python、Go、C/C++、Java、HTML/CSS、JSON、Markdown 等）
+- CodeMirror 6，支持所有主流语言（TS/JS、Rust、Python、Go、C/C++、Java、HTML/CSS、JSON、Markdown、Svelte 等）
 - 内联 AI 自动补全，支持本地模型
 - AI 编辑差异对比，可逐块接受或拒绝
 - Vim 模式
@@ -78,6 +78,7 @@ Terax 是一款开源轻量级 AI 原生终端 (ADE)，基于 Tauri 2 + Rust 和
 - 分支显示，包括分离 HEAD 状态
 - Git 历史面板，带真实提交图谱（合并和分支的车道渲染）
 - 提交搜索与筛选，点击跳转到远程提交页面
+- Git 差异支持预览标签页
 
 ### 文件资源管理器
 
@@ -96,6 +97,7 @@ Terax 是一款开源轻量级 AI 原生终端 (ADE)，基于 Tauri 2 + Rust 和
 - 创建并分享主题，或从社区导入
 - 背景图片，支持透明度与模糊调节
 - 编辑器主题与应用主题独立设置
+- 主题可自定义终端字体（字族/字重/字号）
 
 ### AI（自带密钥）
 
@@ -105,6 +107,12 @@ Terax 是一款开源轻量级 AI 原生终端 (ADE)，基于 Tauri 2 + Rust 和
 - **Composer：** 通过 `#handle` 使用代码片段，通过 `@path` 引用文件，斜杠命令，语音输入，从资源管理器或选区附加到代理
 - **自定义代理：** 可自定义系统提示词和工具子集
 - **计划模式：** 多步骤工作，先生成计划再确认执行
+- **分屏代理：** 支持在分割窗格中直接启动编码代理，运行状态显示在标签页上
+
+### 语言与本地化
+
+- 内置中文/English 双语界面，设置 → 通用中可切换
+- 界面语言跟随系统自动选择，可手动覆盖
 
 ### 品质
 
@@ -114,7 +122,12 @@ Terax 是一款开源轻量级 AI 原生终端 (ADE)，基于 Tauri 2 + Rust 和
 
 ## 安装
 
-前往 [Releases](https://github.com/JackalEthen/terax-ai-cn/releases/latest) 页面下载最新安装包。
+前往 [Releases](https://github.com/JackalEthen/terax-ai-cn/releases) 页面下载安装包。
+
+| 版本 | 说明 |
+|------|------|
+| **v0.8.6-cn**（当前） | 基于上游 v0.8.6 |
+| 历史 | 见 [Releases](https://github.com/JackalEthen/terax-ai-cn/releases) |
 
 ### Windows 注意事项
 
@@ -172,13 +185,10 @@ Tauri 2 · Rust · `portable-pty` · React 19 · TypeScript · Vite · xterm.js 
 
 ## 代码签名
 
-<a href="https://signpath.org"><img src="https://avatars.githubusercontent.com/u/34448643?s=200&v=4" width="80" alt="SignPath" align="left" /></a>
-
-Windows 构建使用 [SignPath.io](https://signpath.io) 提供的免费代码签名证书进行签名，证书由 [SignPath Foundation](https://signpath.org) 提供。
-
-<br clear="left" />
+本汉化版本的构建**未进行代码签名**（无签名密钥），Windows 首次运行时按上方提示操作即可。上游项目使用 [SignPath.io](https://signpath.io) 签名，详情见[原项目](https://github.com/crynta/terax-ai)。
 
 ## 致谢
 
 - 原项目：[terax-ai](https://github.com/crynta/terax-ai)
 - 原作者：[Crynta](https://github.com/crynta)
+- 本仓库维护者：[JackalEthen](https://github.com/JackalEthen)
