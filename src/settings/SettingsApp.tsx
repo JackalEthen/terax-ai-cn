@@ -14,7 +14,8 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
-import { type JSX, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AboutSection } from "./sections/AboutSection";
 import { AgentsSection } from "./sections/AgentsSection";
 import { EditorSection } from "./sections/EditorSection";
@@ -23,50 +24,18 @@ import { ModelsSection } from "./sections/ModelsSection";
 import { ShortcutsSection } from "./sections/ShortcutsSection";
 import { ThemesSection } from "./sections/ThemesSection";
 
-const TABS: {
-  id: SettingsTab;
-  label: string;
-  icon: typeof Settings01Icon;
-  component: () => JSX.Element;
-}[] = [
-  {
-    id: "general",
-    label: "General",
-    icon: Settings01Icon,
-    component: GeneralSection,
-  },
-  {
-    id: "editor",
-    label: "Editor",
-    icon: SourceCodeIcon,
-    component: EditorSection,
-  },
-  {
-    id: "themes",
-    label: "Themes",
-    icon: PaintBoardIcon,
-    component: ThemesSection,
-  },
-  {
-    id: "shortcuts",
-    label: "Shortcuts",
-    icon: KeyboardIcon,
-    component: ShortcutsSection,
-  },
-  { id: "models", label: "Models", icon: AiScanIcon, component: ModelsSection },
-  {
-    id: "agents",
-    label: "Agents",
-    icon: UserMultiple02Icon,
-    component: AgentsSection,
-  },
-  {
-    id: "about",
-    label: "About",
-    icon: InformationCircleIcon,
-    component: AboutSection,
-  },
-];
+function useTabs() {
+  const { t } = useTranslation();
+  return [
+    { id: "general" as SettingsTab, label: t("settings.tabs.general"), icon: Settings01Icon, component: GeneralSection },
+    { id: "editor" as SettingsTab, label: t("settings.tabs.editor"), icon: SourceCodeIcon, component: EditorSection },
+    { id: "themes" as SettingsTab, label: t("settings.tabs.themes"), icon: PaintBoardIcon, component: ThemesSection },
+    { id: "shortcuts" as SettingsTab, label: t("settings.tabs.shortcuts"), icon: KeyboardIcon, component: ShortcutsSection },
+    { id: "models" as SettingsTab, label: t("settings.tabs.models"), icon: AiScanIcon, component: ModelsSection },
+    { id: "agents" as SettingsTab, label: t("settings.tabs.agents"), icon: UserMultiple02Icon, component: AgentsSection },
+    { id: "about" as SettingsTab, label: t("settings.tabs.about"), icon: InformationCircleIcon, component: AboutSection },
+  ];
+}
 
 const VALID_TABS: SettingsTab[] = [
   "general",
@@ -91,7 +60,8 @@ function readInitialTab(): SettingsTab {
 export function SettingsApp() {
   const [active, setActive] = useState<SettingsTab>(readInitialTab);
   const init = usePreferencesStore((s) => s.init);
-  const ActiveSection = TABS.find((t) => t.id === active)?.component;
+  const tabs = useTabs();
+  const ActiveSection = tabs.find((t) => t.id === active)?.component;
 
   useEffect(() => {
     void init();
@@ -132,7 +102,7 @@ export function SettingsApp() {
           data-tauri-drag-region
         >
           <TabsList className="mx-auto h-7 bg-muted/40 px-2">
-            {TABS.map((t) => (
+            {tabs.map((t) => (
               <TabsTrigger
                 key={t.id}
                 value={t.id}

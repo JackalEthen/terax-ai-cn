@@ -42,6 +42,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   compatModelIdForEndpoint,
   getCompatModelInfo,
@@ -78,6 +79,7 @@ const PROVIDER_ICON = {
 } as const satisfies Record<ProviderId, typeof ChatGptIcon>;
 
 export function AiOpenButton({ onOpen }: { onOpen: () => void }) {
+  const { t } = useTranslation();
   return (
     <button
       type="button"
@@ -87,15 +89,16 @@ export function AiOpenButton({ onOpen }: { onOpen: () => void }) {
         "text-muted-foreground transition-colors hover:border-border hover:bg-accent hover:text-foreground",
         "animate-in slide-in-from-top-2 duration-200 ease-out",
       )}
-      title="Open AI agent"
+      title={t("ai.statusBar.openAiAgent")}
     >
-      <span>Open AI agent</span>
+      <span>{t("ai.statusBar.openAiAgent")}</span>
       <Kbd className="h-4 min-w-4 px-1">{fmtShortcut(MOD_KEY, "I")}</Kbd>
     </button>
   );
 }
 
 export function AiStatusBarControls() {
+  const { t } = useTranslation();
   const c = useComposer();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toggleMini = useChatStore((s) => s.toggleMini);
@@ -117,7 +120,7 @@ export function AiStatusBarControls() {
       />
 
       <IconBtn
-        title="Attach file or image"
+        title={t("ai.statusBar.attachFile")}
         onClick={() => fileInputRef.current?.click()}
         disabled={c.isBusy}
       >
@@ -128,12 +131,12 @@ export function AiStatusBarControls() {
         <IconBtn
           title={
             !c.voice.hasKey
-              ? `Voice needs a ${STT_PROVIDER_LABELS[c.voice.sttProvider]} key`
+              ? t("ai.statusBar.voiceNeedKey", { provider: STT_PROVIDER_LABELS[c.voice.sttProvider] })
               : c.voice.recording
-                ? "Stop & transcribe"
+                ? t("ai.statusBar.stopTranscribe")
                 : c.voice.transcribing
-                  ? "Transcribing…"
-                  : "Voice input"
+                  ? t("ai.input.transcribing")
+                  : t("ai.statusBar.voiceInput")
           }
           onClick={() =>
             c.voice.recording ? c.voice.stop() : void c.voice.start()
@@ -159,10 +162,10 @@ export function AiStatusBarControls() {
       <span className="mx-1 h-8 w-px bg-border" aria-hidden />
       <Button
         onClick={closePanel}
-        title="Close AI panel"
+        title={t("ai.statusBar.closeAiPanel")}
         size="xs"
         variant="ghost"
-        aria-label="Close AI panel"
+        aria-label={t("ai.statusBar.closeAiPanel")}
         className="text-[11px] text-foreground/85 px-1"
       >
         <Kbd className="h-4 gap-px px-2 font-mono text-[11px]">
@@ -170,7 +173,7 @@ export function AiStatusBarControls() {
         </Kbd>
       </Button>
       <IconBtn
-        title={`${miniOpen ? "Close" : "Open"} AI chat window (${fmtShortcut("⇧", MOD_KEY, "I")})`}
+        title={miniOpen ? t("ai.statusBar.miniWindowOpen") : t("ai.statusBar.openConversation")}
         onClick={toggleMini}
       >
         <HugeiconsIcon icon={Message01Icon} size={13} strokeWidth={1.75} />
@@ -183,8 +186,8 @@ export function AiStatusBarControls() {
           variant="ghost"
           onClick={c.stop}
           className="size-6"
-          aria-label="Stop"
-          title="Stop"
+          aria-label={t("ai.statusBar.stop")}
+          title={t("ai.statusBar.stop")}
         >
           <HugeiconsIcon icon={StopCircleIcon} size={13} strokeWidth={1.75} />
         </Button>
@@ -195,8 +198,8 @@ export function AiStatusBarControls() {
           onClick={c.submit}
           disabled={!c.canSend}
           className="h-5.5 w-7.5 ml-1"
-          aria-label="Send"
-          title="Send (Enter)"
+          aria-label={t("ai.statusBar.sendEnter")}
+          title={t("ai.statusBar.sendEnter")}
         >
           <HugeiconsIcon icon={ArrowUpIcon} size={13} strokeWidth={1.75} />
         </Button>
@@ -208,6 +211,7 @@ export function AiStatusBarControls() {
 type Tab = "all" | "favorites" | "recent";
 
 function ModelDropdown() {
+  const { t } = useTranslation();
   const selected = useChatStore((s) => s.selectedModelId);
   const apiKeys = useChatStore((s) => s.apiKeys);
   const setSelected = useChatStore((s) => s.setSelectedModelId);
@@ -299,8 +303,8 @@ function ModelDropdown() {
           )}
           title={
             currentProviderHasKey
-              ? `Model: ${current.label}`
-              : `${current.label} — no key configured`
+              ? t("ai.statusBar.modelLabel", { label: current.label })
+              : t("ai.statusBar.modelNoKey", { label: current.label })
           }
         >
           {current.label}
@@ -333,7 +337,7 @@ function ModelDropdown() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.stopPropagation()}
-            placeholder="Search models, providers, capabilities…"
+            placeholder={t("ai.statusBar.searchModels")}
             className="w-full bg-transparent text-xs outline-none placeholder:text-muted-foreground/60"
           />
         </div>
@@ -341,20 +345,20 @@ function ModelDropdown() {
         {/* Tabs */}
         <div className="flex items-center gap-0.5 border-b border-border/70 px-2 py-1.5">
           <TabButton
-            label="All"
+            label={t("ai.statusBar.all")}
             icon={AiBookIcon}
             active={tab === "all"}
             onClick={() => setTab("all")}
           />
           <TabButton
-            label="Favorites"
+            label={t("ai.statusBar.favorites")}
             icon={FavouriteIcon}
             active={tab === "favorites"}
             onClick={() => setTab("favorites")}
             count={favoriteIds.length || undefined}
           />
           <TabButton
-            label="Recent"
+            label={t("ai.statusBar.recent")}
             icon={Clock01Icon}
             active={tab === "recent"}
             onClick={() => setTab("recent")}
@@ -367,7 +371,7 @@ function ModelDropdown() {
           <div className="flex w-11 shrink-0 flex-col gap-0.5 overflow-y-auto border-r border-border/70 bg-muted/20 py-1.5">
             <ProviderPill
               icon={AiBookIcon}
-              title="All providers"
+              title={t("ai.statusBar.allProviders")}
               active={activeProvider === null}
               onClick={() => setActiveProvider(null)}
             />
@@ -379,7 +383,7 @@ function ModelDropdown() {
                   title={
                     hasKeyFor(p.id)
                       ? p.label
-                      : `${p.label} — not configured`
+                      : t("ai.statusBar.notConfigured", { label: p.label })
                   }
                   active={activeProvider === p.id}
                   muted={!hasKeyFor(p.id)}
@@ -390,7 +394,7 @@ function ModelDropdown() {
             {customEndpoints.length > 0 && (
               <ProviderPill
                 icon={PlugIcon}
-                title="OpenAI Compatible"
+                title={t("ai.statusBar.openaiCompatible")}
                 active={activeProvider === COMPAT_PROVIDER_ID}
                 onClick={() => setActiveProvider(COMPAT_PROVIDER_ID)}
               />
@@ -402,7 +406,7 @@ function ModelDropdown() {
             {activeProvider === COMPAT_PROVIDER_ID && (
               <div className="flex items-center gap-1.5 px-3 pt-1 pb-1.5 text-[11px] font-medium tracking-tight text-muted-foreground/90">
                 <HugeiconsIcon icon={PlugIcon} size={13} strokeWidth={1.75} />
-                <span>OpenAI Compatible</span>
+                <span>{t("ai.statusBar.openaiCompatible")}</span>
               </div>
             )}
             {activeProvider !== null &&
@@ -417,10 +421,10 @@ function ModelDropdown() {
             {filtered.length === 0 ? (
               <div className="flex items-center justify-center px-4 py-10 text-xs text-muted-foreground/70">
                 {tab === "favorites"
-                  ? "No favorites yet — star a model to pin it here."
+                  ? t("ai.statusBar.noFavorites")
                   : tab === "recent"
-                    ? "No recently-used models."
-                    : "No models match."}
+                    ? t("ai.statusBar.noRecent")
+                    : t("ai.statusBar.noModelsMatch")}
               </div>
             ) : (
               filtered.map((m) => (
@@ -535,6 +539,7 @@ function ProviderHeader({ providerId }: { providerId: ProviderId }) {
 }
 
 function ProviderConfigureCTA({ providerId }: { providerId: ProviderId }) {
+  const { t } = useTranslation();
   const p = PROVIDERS.find((x) => x.id === providerId);
   if (!p) return null;
   return (
@@ -545,10 +550,10 @@ function ProviderConfigureCTA({ providerId }: { providerId: ProviderId }) {
     >
       <HugeiconsIcon icon={Settings01Icon} size={13} strokeWidth={1.75} />
       <span className="flex-1 truncate">
-        Configure {p.label} to use these models.
+        {t("ai.statusBar.configureProvider", { provider: p.label })}
       </span>
       <span className="shrink-0 text-[10px] underline-offset-2 group-hover:underline">
-        Open
+        {t("common.open")}
       </span>
     </button>
   );
@@ -571,6 +576,7 @@ function ModelRow({
   onPick: () => void;
   onToggleFavorite: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <DropdownMenuItem
       onSelect={(e) => {
@@ -590,7 +596,7 @@ function ModelRow({
           e.stopPropagation();
           onToggleFavorite();
         }}
-        title={favorite ? "Unfavorite" : "Favorite"}
+        title={favorite ? t("ai.statusBar.unfavorite") : t("ai.statusBar.favorite")}
         className={cn(
           "shrink-0 rounded p-0.5 transition-colors",
           favorite
@@ -639,14 +645,15 @@ function ModelRow({
 }
 
 function CapabilityBars({ caps }: { caps: ModelCapabilities }) {
+  const { t } = useTranslation();
   return (
     <div className="ml-auto flex items-center gap-1.5">
-      <CapBar icon={BrainIcon} value={caps.intelligence} label="Intelligence" />
-      <CapBar icon={FlashIcon} value={caps.speed} label="Speed" />
+      <CapBar icon={BrainIcon} value={caps.intelligence} label={t("ai.statusBar.intelligence")} />
+      <CapBar icon={FlashIcon} value={caps.speed} label={t("ai.statusBar.speed")} />
       <CapBar
         icon={CoinsDollarIcon}
         value={caps.cost}
-        label="Affordability"
+        label={t("ai.statusBar.affordability")}
       />
     </div>
   );

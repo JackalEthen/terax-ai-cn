@@ -32,6 +32,7 @@ import {
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { LspServersGroup } from "../components/LspServersGroup";
 import { SectionHeader } from "../components/SectionHeader";
 import { SettingRow } from "../components/SettingRow";
@@ -39,6 +40,7 @@ import { SettingRow } from "../components/SettingRow";
 const AUTO_SAVE_STEP = 100;
 
 export function EditorSection() {
+  const { t } = useTranslation();
   const editorFontSize = usePreferencesStore((s) => s.editorFontSize);
   const vimMode = usePreferencesStore((s) => s.vimMode);
   const editorWordWrap = usePreferencesStore((s) => s.editorWordWrap);
@@ -56,13 +58,16 @@ export function EditorSection() {
   return (
     <div className="flex flex-col gap-6">
       <SectionHeader
-        title="Editor"
-        description="Editing behavior, saving, and language servers."
+        title={t("settings.editor.title")}
+        description={t("settings.editor.description")}
       />
 
       <div className="flex flex-col gap-2">
-        <Label>Appearance</Label>
-        <SettingRow title="Font size" description="Code editor text size.">
+        <Label>{t("settings.editor.appearance")}</Label>
+        <SettingRow
+          title={t("settings.editor.fontSize")}
+          description={t("settings.editor.fontSizeDesc")}
+        >
           <Select
             value={String(editorFontSize)}
             onValueChange={(v) => void setEditorFontSize(Number(v))}
@@ -77,7 +82,7 @@ export function EditorSection() {
                   value={String(size)}
                   className="text-[12px]"
                 >
-                  {size} px
+                  {size} {t("settings.editor.px")}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -86,10 +91,10 @@ export function EditorSection() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label>Editing</Label>
+        <Label>{t("settings.editor.editing")}</Label>
         <SettingRow
-          title="Vim mode"
-          description="Enable Vim keybindings in the code editor."
+          title={t("settings.editor.vimMode")}
+          description={t("settings.editor.vimModeDesc")}
         >
           <Switch
             checked={vimMode}
@@ -97,8 +102,8 @@ export function EditorSection() {
           />
         </SettingRow>
         <SettingRow
-          title="Word wrap"
-          description="Wrap long lines instead of scrolling horizontally."
+          title={t("settings.editor.wordWrap")}
+          description={t("settings.editor.wordWrapDesc")}
         >
           <Switch
             checked={editorWordWrap}
@@ -108,10 +113,10 @@ export function EditorSection() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label>Saving</Label>
+        <Label>{t("settings.editor.saving")}</Label>
         <SettingRow
-          title="Auto save"
-          description="Automatically save files after a delay when changes are detected."
+          title={t("settings.editor.autoSave")}
+          description={t("settings.editor.autoSaveDesc")}
         >
           <Switch
             checked={editorAutoSave}
@@ -125,8 +130,8 @@ export function EditorSection() {
           />
         )}
         <SettingRow
-          title="Format on save"
-          description="Format the file on explicit save (Cmd+S / :w) with the formatter below."
+          title={t("settings.editor.formatOnSave")}
+          description={t("settings.editor.formatOnSaveDesc")}
         >
           <Switch
             checked={editorFormatOnSave}
@@ -136,8 +141,8 @@ export function EditorSection() {
         {editorFormatOnSave && (
           <>
             <SettingRow
-              title="Formatter"
-              description="Language server formats the buffer before writing; external tools run on the saved file from your PATH."
+              title={t("settings.editor.formatter")}
+              description={t("settings.editor.formatterDesc")}
             >
               <FormatterSelect
                 value={editorFormatter}
@@ -185,6 +190,7 @@ function FormatterSelect({
 }
 
 function CustomFormatCommandInput() {
+  const { t } = useTranslation();
   const stored = usePreferencesStore((s) => s.editorCustomFormatCommand);
   const [draft, setDraft] = useState(stored);
 
@@ -194,12 +200,12 @@ function CustomFormatCommandInput() {
 
   return (
     <SettingRow
-      title="Custom command"
-      description="Runs on the saved file; {file} is replaced with the quoted path (appended when omitted)."
+      title={t("settings.editor.customCommand")}
+      description={t("settings.editor.customCommandDesc", { file: "{file}" })}
     >
       <Input
         value={draft}
-        placeholder="mytool --fix {file}"
+        placeholder={t("settings.editor.customCommandPlaceholder", { file: "{file}" })}
         onChange={(e) => setDraft(e.target.value)}
         onBlur={() => {
           if (draft !== stored) void setEditorCustomFormatCommand(draft);
@@ -214,6 +220,7 @@ function CustomFormatCommandInput() {
 }
 
 function FormatterOverrides() {
+  const { t } = useTranslation();
   const byLang = usePreferencesStore((s) => s.editorFormatterByLang);
   const entries = Object.entries(byLang);
   const unused = EXPOSED_LANGUAGES.filter((l) => !(l.ext in byLang));
@@ -224,8 +231,8 @@ function FormatterOverrides() {
   return (
     <>
       <SettingRow
-        title="Language overrides"
-        description="Use a different formatter for specific languages (e.g. Ruff for Python)."
+        title={t("settings.editor.languageOverrides")}
+        description={t("settings.editor.languageOverridesDesc")}
       >
         <button
           type="button"
@@ -236,7 +243,7 @@ function FormatterOverrides() {
             if (first) update({ ...byLang, [first.ext]: "lsp" });
           }}
         >
-          Add override
+          {t("settings.editor.addOverride")}
         </button>
       </SettingRow>
       {entries.map(([lang, formatter]) => (
@@ -274,7 +281,7 @@ function FormatterOverrides() {
           <button
             type="button"
             className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
-            title="Remove override"
+            title={t("settings.editor.removeOverride")}
             onClick={() => {
               const next = { ...byLang };
               delete next[lang];
@@ -304,6 +311,7 @@ function AutoSaveDelayInput({
   value: number;
   onChange: (v: number) => void;
 }) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState(String(value));
 
   useEffect(() => {
@@ -323,8 +331,8 @@ function AutoSaveDelayInput({
 
   return (
     <SettingRow
-      title="Auto save delay"
-      description="Delay before unsaved changes are saved automatically."
+      title={t("settings.editor.autoSaveDelay")}
+      description={t("settings.editor.autoSaveDelayDesc")}
     >
       <div className="flex items-center gap-2">
         <Input
@@ -342,7 +350,9 @@ function AutoSaveDelayInput({
           }}
           className="h-8 w-20 rounded-md border border-border bg-background px-2.5 text-right text-[12px] md:text-[12px] tabular-nums outline-none focus:border-foreground/40 focus-visible:ring-0 focus-visible:border-foreground/40 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
-        <span className="text-[11px] text-muted-foreground">ms</span>
+        <span className="text-[11px] text-muted-foreground">
+          {t("settings.editor.ms")}
+        </span>
       </div>
     </SettingRow>
   );

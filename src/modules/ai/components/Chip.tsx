@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 export type ChipTone =
   | "neutral"
@@ -41,16 +42,18 @@ type Props = {
   children?: ReactNode;
 };
 
-export function Chip({
-  tone = "neutral",
-  icon,
-  iconNode,
-  label,
-  title,
-  onRemove,
-  removeLabel = "Remove",
-  children,
-}: Props) {
+export function Chip(props: Props) {
+  const { t } = useTranslation();
+  const {
+    tone = "neutral",
+    icon,
+    iconNode,
+    label,
+    title,
+    onRemove,
+    removeLabel = t("common.remove"),
+    children,
+  } = props;
   return (
     <div
       title={title}

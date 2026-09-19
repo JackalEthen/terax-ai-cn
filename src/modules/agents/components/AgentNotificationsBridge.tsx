@@ -2,6 +2,7 @@ import type { Tab } from "@/modules/tabs";
 import { hasLeaf, leafIdForPty } from "@/modules/terminal";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { displayAgent } from "../lib/format";
 import { maybeTriggerManagedReview } from "../lib/review";
 import { routeAgentNotification } from "../lib/route";
@@ -17,6 +18,7 @@ type Ctx = {
   focused: boolean;
   onActivate: Activate;
 };
+type T = (key: string, opts?: Record<string, unknown>) => string;
 
 function tabInfo(
   tabs: Tab[],
@@ -34,11 +36,14 @@ function route(
   session: AgentSession,
   kind: "attention" | "finished",
   ctx: Ctx,
+  t: T,
 ): void {
   const info = tabInfo(ctx.tabs, session.leafId);
   const name = displayAgent(session.agent);
   const heading =
-    kind === "attention" ? `${name} needs your input` : `${name} finished`;
+    kind === "attention"
+      ? t("agents.notifications.needsInput", { name })
+      : t("agents.notifications.finished", { name });
 
   routeAgentNotification({
     source: "terminal",
@@ -56,7 +61,7 @@ function route(
   });
 }
 
-function handleSignal(sig: AgentSignal, ctx: Ctx): void {
+function handleSignal(sig: AgentSignal, ctx: Ctx, t: T): void {
   const leafId = leafIdForPty(sig.id);
   if (leafId === null) return;
   const store = useAgentStore.getState();
@@ -74,13 +79,13 @@ function handleSignal(sig: AgentSignal, ctx: Ctx): void {
     case "attention": {
       store.setStatus(leafId, "waiting");
       const session = store.sessions[leafId];
-      if (session) route(session, "attention", ctx);
+      if (session) route(session, "attention", ctx, t);
       return;
     }
     case "finished": {
       store.setStatus(leafId, "waiting");
       const session = store.sessions[leafId];
-      if (session) route(session, "finished", ctx);
+      if (session) route(session, "finished", ctx, t);
       maybeTriggerManagedReview(leafId);
       return;
     }
@@ -100,15 +105,18 @@ export function AgentNotificationsBridge({
   activeId: number;
   onActivate: Activate;
 }) {
+  const { t } = useTranslation();
   const focused = useWindowFocus();
   const ctxRef = useRef<Ctx>({ tabs, activeId, focused, onActivate });
   ctxRef.current = { tabs, activeId, focused, onActivate };
+  const tRef = useRef<T>(t);
+  tRef.current = t;
 
   useEffect(() => {
     let alive = true;
     let unlisten: (() => void) | undefined;
     listen<AgentSignal>("terax:agent-signal", (e) =>
-      handleSignal(e.payload, ctxRef.current),
+      handleSignal(e.payload, ctxRef.current, tRef.current),
     )
       .then((u) => {
         if (alive) unlisten = u;

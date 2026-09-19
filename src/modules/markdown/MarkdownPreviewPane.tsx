@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { currentWorkspaceEnv } from "@/modules/workspace";
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Streamdown } from "streamdown";
 import { MarkdownViewToggle } from "./MarkdownViewToggle";
 
@@ -27,6 +28,7 @@ type Props = {
 const components = { code: MarkdownCode };
 
 export function MarkdownPreviewPane({ path, visible, onSetView }: Props) {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<Status>({ kind: "loading" });
 
   useEffect(() => {
@@ -65,21 +67,21 @@ export function MarkdownPreviewPane({ path, visible, onSetView }: Props) {
       <div className="flex-1 overflow-auto">
         <div className="px-8 py-6">
           {status.kind === "loading" && (
-            <p className="text-[12px] text-muted-foreground">Loading…</p>
+            <p className="text-[12px] text-muted-foreground">{t("common.loading")}</p>
           )}
           {status.kind === "error" && (
             <p className="text-[12px] text-destructive">
-              Failed to read file: {status.message}
+              {t("markdown.failedToRead", { message: status.message })}
             </p>
           )}
           {status.kind === "binary" && (
             <p className="text-[12px] text-muted-foreground">
-              Binary file — cannot render as markdown.
+              {t("markdown.binary")}
             </p>
           )}
           {status.kind === "toolarge" && (
             <p className="text-[12px] text-muted-foreground">
-              File is {status.size} bytes; limit {status.limit}.
+              {t("markdown.tooLarge", { size: status.size, limit: status.limit })}
             </p>
           )}
           {status.kind === "ready" && (

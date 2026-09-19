@@ -13,6 +13,7 @@ import { File02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   open: boolean;
@@ -32,6 +33,7 @@ export function NewEditorDialog({
   rootPath,
   onCreated,
 }: Props) {
+  const { t } = useTranslation();
   const [name, setName] = useState("untitled.txt");
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -54,15 +56,15 @@ export function NewEditorDialog({
   const submit = async () => {
     const trimmed = name.trim();
     if (!trimmed) {
-      setError("Name is required");
+      setError(t('editor.nameRequired'));
       return;
     }
     if (trimmed.includes("..")) {
-      setError("Path must be relative");
+      setError(t('editor.pathRelative'));
       return;
     }
     if (!rootPath) {
-      setError("No workspace root");
+      setError(t('editor.noWorkspaceRoot'));
       return;
     }
     const path = trimmed.startsWith("/")
@@ -86,11 +88,10 @@ export function NewEditorDialog({
         <DialogHeader>
           <DialogTitle className="flex gap-1.75">
             <HugeiconsIcon icon={File02Icon} size={16} strokeWidth={1.75} />
-            New file
+            {t('editor.newFile')}
           </DialogTitle>
           <DialogDescription>
-            Filename (relative to workspace root). The extension determines the
-            language mode.
+            {t('editor.newFileDesc')}
           </DialogDescription>
         </DialogHeader>
         <Input
@@ -106,7 +107,7 @@ export function NewEditorDialog({
               void submit();
             }
           }}
-          placeholder="example.ts"
+          placeholder={t('editor.exampleTs')}
         />
         {error ? (
           <div className="text-xs text-destructive">{error}</div>
@@ -117,9 +118,9 @@ export function NewEditorDialog({
         )}
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t('common.cancel')}
           </Button>
-          <Button onClick={() => void submit()}>Create</Button>
+          <Button onClick={() => void submit()}>{t('common.create')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

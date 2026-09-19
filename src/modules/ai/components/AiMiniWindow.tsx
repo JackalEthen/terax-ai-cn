@@ -29,6 +29,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { PresenceState } from "@/lib/usePresence";
 import { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { estimateCost, getModel, getModelContextLimit, type ModelId } from "../config";
 import type { ResizeDir } from "../lib/miniWindowGeometry";
 import type { SessionMeta } from "../lib/sessions";
@@ -42,27 +43,6 @@ import { AgentSwitcher } from "./AgentSwitcher";
 import { AiChatView } from "./AiChat";
 import { PlanDiffReview } from "./PlanDiffReview";
 import { TodoStrip } from "./TodoStrip";
-
-const SUGGESTIONS = [
-  {
-    label: "Explain the last error",
-    hint: "Read the terminal buffer",
-    icon: AlertCircleIcon,
-    text: "Explain the last error in the terminal.",
-  },
-  {
-    label: "Generate a command",
-    hint: "Tell me what you want to do",
-    icon: TerminalIcon,
-    text: "Give me a command to ",
-  },
-  {
-    label: "Summarize buffer",
-    hint: "Recap recent activity",
-    icon: FilterIcon,
-    text: "Summarize what just happened in the terminal.",
-  },
-];
 
 export function AiMiniWindow({ state }: { state: PresenceState }) {
   const closeMini = useChatStore((s) => s.closeMini);
@@ -213,6 +193,7 @@ function Body({
 }
 
 function PlanModeStrip() {
+  const { t } = useTranslation();
   const active = usePlanStore((s) => s.active);
   const queueLen = usePlanStore((s) => s.queue.length);
   const disable = usePlanStore((s) => s.disable);
@@ -220,9 +201,9 @@ function PlanModeStrip() {
   return (
     <div className="flex shrink-0 items-center gap-2 border-b border-border/40 bg-muted/40 px-3 py-1.5">
       <span className="size-1.5 shrink-0 rounded-full bg-amber-500" />
-      <span className="text-[11px] font-medium text-foreground">Plan mode</span>
+      <span className="text-[11px] font-medium text-foreground">{t("ai.miniWindow.planMode")}</span>
       <span className="text-[11px] text-muted-foreground">
-        {queueLen > 0 ? `· ${queueLen} queued` : "· no edits queued"}
+        {queueLen > 0 ? `· ${t("ai.miniWindow.queued", { count: queueLen })}` : `· ${t("ai.miniWindow.noEditsQueued")}`}
       </span>
       <span className="flex-1" />
       <button
@@ -230,7 +211,7 @@ function PlanModeStrip() {
         onClick={() => disable()}
         className="rounded px-1.5 py-0.5 text-[10.5px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
-        Exit
+        {t("ai.miniWindow.exit")}
       </button>
     </div>
   );
@@ -245,6 +226,7 @@ function EmptyShell({
   onExpand: () => void;
   onHeaderPointerDown: (e: React.PointerEvent) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <>
       <Header
@@ -255,7 +237,7 @@ function EmptyShell({
         onHeaderPointerDown={onHeaderPointerDown}
       />
       <div className="flex flex-1 items-center justify-center text-[11px] text-muted-foreground">
-        Loading sessions…
+        {t("ai.miniWindow.loadingSessions")}
       </div>
     </>
   );
@@ -275,6 +257,7 @@ function Header({
   messages?: UIMessage[];
   onHeaderPointerDown: (e: React.PointerEvent) => void;
 }) {
+  const { t } = useTranslation();
   const customAgents = useAgentsStore((s) => s.customAgents);
   void customAgents;
 
@@ -293,7 +276,7 @@ function Header({
         {isBusy ? (
           <span className="flex min-w-0 items-center gap-1 text-[10px] text-muted-foreground">
             <Spinner className="size-2.5" />
-            <span className="max-w-32 truncate">{step ?? "Thinking…"}</span>
+            <span className="max-w-32 truncate">{step ?? t("ai.chat.thinking")}</span>
           </span>
         ) : null}
         <SessionPicker />
@@ -303,8 +286,8 @@ function Header({
           variant="ghost"
           onClick={onClose}
           className="size-5"
-          aria-label="Close"
-          title="Close (Esc)"
+          aria-label={t("ai.miniWindow.close")}
+          title={t("ai.miniWindow.closeEsc")}
         >
           <HugeiconsIcon icon={Cancel01Icon} size={11} strokeWidth={1.75} />
         </Button>
@@ -338,6 +321,7 @@ function formatTokens(n: number): string {
 }
 
 function ContextIndicator({ messages }: { messages: UIMessage[] }) {
+  const { t } = useTranslation();
   const modelId = useChatStore((s) => s.selectedModelId);
   const tokens = useChatStore((s) => s.agentMeta.tokens);
   const lastInput = useChatStore((s) => s.agentMeta.lastInputTokens);
@@ -369,18 +353,18 @@ function ContextIndicator({ messages }: { messages: UIMessage[] }) {
         <ContextContentHeader />
         <ContextContentBody>
           <div className="flex items-center justify-between text-muted-foreground">
-            <span>Model</span>
+            <span>{t("ai.miniWindow.model")}</span>
             <span className="font-mono text-foreground">{modelLabel}</span>
           </div>
           <div className="mt-1 flex items-center justify-between text-muted-foreground">
-            <span>{lastInput > 0 ? "Last request" : "Estimated context"}</span>
+            <span>{lastInput > 0 ? t("ai.miniWindow.lastRequest") : t("ai.miniWindow.estimatedContext")}</span>
             <span className="font-mono text-foreground">
               {formatTokens(used)}
             </span>
           </div>
           {lastCached > 0 && (
             <div className="flex items-center justify-between text-muted-foreground">
-              <span>Of which cached</span>
+              <span>{t("ai.miniWindow.ofWhichCached")}</span>
               <span className="font-mono text-foreground">
                 {formatTokens(lastCached)}
               </span>
@@ -389,26 +373,26 @@ function ContextIndicator({ messages }: { messages: UIMessage[] }) {
           {reported > 0 && (
             <>
               <div className="mt-1.5 flex items-center justify-between text-muted-foreground">
-                <span>Session input</span>
+                <span>{t("ai.miniWindow.sessionInput")}</span>
                 <span className="font-mono text-foreground">
                   {formatTokens(tokens.inputTokens)}
                 </span>
               </div>
               <div className="flex items-center justify-between text-muted-foreground">
-                <span>Session output</span>
+                <span>{t("ai.miniWindow.sessionOutput")}</span>
                 <span className="font-mono text-foreground">
                   {formatTokens(tokens.outputTokens)}
                 </span>
               </div>
               {tokens.cachedInputTokens > 0 && (
                 <div className="flex items-center justify-between text-muted-foreground">
-                  <span>Cache hit</span>
+                  <span>{t("ai.miniWindow.cacheHit")}</span>
                   <span className="font-mono text-foreground">{cacheRate}%</span>
                 </div>
               )}
               {cost != null && (
                 <div className="flex items-center justify-between text-muted-foreground">
-                  <span>Session cost</span>
+                  <span>{t("ai.miniWindow.sessionCost")}</span>
                   <span className="font-mono text-foreground">
                     ${cost.toFixed(cost < 0.01 ? 4 : cost < 1 ? 3 : 2)}
                   </span>
@@ -417,7 +401,7 @@ function ContextIndicator({ messages }: { messages: UIMessage[] }) {
             </>
           )}
           <div className="flex items-center justify-between text-muted-foreground">
-            <span>Window</span>
+            <span>{t("ai.miniWindow.window")}</span>
             <span className="font-mono text-foreground">
               {formatTokens(max)}
             </span>
@@ -426,8 +410,8 @@ function ContextIndicator({ messages }: { messages: UIMessage[] }) {
         <ContextContentFooter>
           <span className="text-[10px] italic text-muted-foreground">
             {lastInput > 0
-              ? "Last request reflects current context size; session totals are cumulative."
-              : "Token count is approximate (chars / 4)."}
+              ? t("ai.miniWindow.lastRequestNote")
+              : t("ai.miniWindow.tokenCountNote")}
           </span>
         </ContextContentFooter>
       </ContextContent>
@@ -436,6 +420,7 @@ function ContextIndicator({ messages }: { messages: UIMessage[] }) {
 }
 
 function SessionPicker() {
+  const { t } = useTranslation();
   const sessions = useChatStore((s) => s.sessions);
   const activeId = useChatStore((s) => s.activeSessionId);
   const switchSession = useChatStore((s) => s.switchSession);
@@ -457,9 +442,9 @@ function SessionPicker() {
             "text-[11px] text-muted-foreground transition-colors",
             "hover:bg-accent hover:text-foreground",
           )}
-          title="Switch session"
+          title={t("ai.miniWindow.switchSession")}
         >
-          <span className="truncate">{active.title || "New chat"}</span>
+          <span className="truncate">{active.title || t("ai.miniWindow.newChat")}</span>
           <HugeiconsIcon
             icon={ArrowDown01Icon}
             size={10}
@@ -474,7 +459,7 @@ function SessionPicker() {
           className="gap-2 text-xs"
         >
           <HugeiconsIcon icon={Add01Icon} size={12} strokeWidth={1.75} />
-          New session
+          {t("ai.miniWindow.newSession")}
         </DropdownMenuItem>
         {sorted.length > 0 ? <DropdownMenuSeparator /> : null}
         {sorted.map((s) => (
@@ -502,6 +487,7 @@ function SessionRow({
   onSelect: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <DropdownMenuItem
       onSelect={(e) => {
@@ -519,7 +505,7 @@ function SessionRow({
       )}
     >
       <span className="min-w-0 flex-1 truncate">
-        {session.title || "New chat"}
+        {session.title || t("ai.miniWindow.newChat")}
       </span>
       <button
         type="button"
@@ -528,7 +514,7 @@ function SessionRow({
           e.stopPropagation();
           onDelete();
         }}
-        title="Delete session"
+        title={t("ai.miniWindow.deleteSession")}
         className="rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
       >
         <HugeiconsIcon icon={Delete02Icon} size={11} strokeWidth={1.75} />
@@ -538,19 +524,40 @@ function SessionRow({
 }
 
 function EmptyState({ onPick }: { onPick: (text: string) => void }) {
+  const { t } = useTranslation();
+  const suggestions = [
+    {
+      label: t("ai.miniWindow.explainError"),
+      hint: t("ai.miniWindow.explainError"),
+      icon: AlertCircleIcon,
+      text: "Explain the last error in the terminal.",
+    },
+    {
+      label: t("ai.miniWindow.generateCommand"),
+      hint: t("ai.miniWindow.generateCommand"),
+      icon: TerminalIcon,
+      text: "Give me a command to ",
+    },
+    {
+      label: t("ai.miniWindow.summarizeBuffer"),
+      hint: t("ai.miniWindow.summarizeBuffer"),
+      icon: FilterIcon,
+      text: "Summarize what just happened in the terminal.",
+    },
+  ];
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 px-8 py-10 text-center">
       <img src="/logo.png" alt="Terax" className="size-14 opacity-90" />
       <div className="space-y-1.5">
         <p className="text-[14px] font-semibold tracking-tight">
-          Ask Terax anything
+          {t("ai.miniWindow.askTeraxAnything")}
         </p>
         <p className="max-w-[18rem] text-[11.5px] leading-relaxed text-muted-foreground">
-          Terax sees the active terminal — cwd, recent commands, and output.
+          {t("ai.miniWindow.miniWindowDesc")}
         </p>
       </div>
       <div className="flex w-full flex-col gap-2.5">
-        {SUGGESTIONS.map((s) => (
+        {suggestions.map((s) => (
           <button
             key={s.label}
             type="button"

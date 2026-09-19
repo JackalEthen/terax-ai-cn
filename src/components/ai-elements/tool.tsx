@@ -28,6 +28,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import type { DynamicToolUIPart, ToolUIPart } from "ai";
 import type { ComponentProps, ReactNode } from "react";
 import { isValidElement, memo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 
 export type ToolPart = ToolUIPart | DynamicToolUIPart;
@@ -144,9 +145,10 @@ const ToolImpl = ({
   defaultOpen,
   ...props
 }: ToolProps) => {
+  const { t } = useTranslation();
   const meta = TOOL_META[toolName];
   const Icon = meta?.icon ?? ToolsIcon;
-  const label = meta?.label ?? toolName;
+  const label = meta?.label ? t(`ai.tools.${meta.label}`) : toolName;
   const summary = deriveSummary(toolName, input);
   const isError = state === "output-error";
   const open = defaultOpen ?? isError;
@@ -175,7 +177,7 @@ const ToolImpl = ({
       >
         <span
           className={cn("size-1.5 shrink-0 rounded-full", STATUS_DOT[state])}
-          aria-label={STATUS_LABEL[state]}
+          aria-label={t(`ai.tools.${STATUS_LABEL[state]}`)}
         />
         <HugeiconsIcon
           icon={Icon}
@@ -193,7 +195,7 @@ const ToolImpl = ({
         )}
         {isError && (
           <span className="shrink-0 text-[10px] font-medium text-destructive">
-            failed
+            {t("ai.tools.failed")}
           </span>
         )}
       </CollapsibleTrigger>
@@ -236,13 +238,14 @@ export const Tool = memo(ToolImpl, (a, b) => {
 });
 
 function ToolInput({ toolName, input }: { toolName: string; input: unknown }) {
+  const { t } = useTranslation();
   if (input == null) return null;
   const preview = renderInputPreview(toolName, input);
   if (preview) {
     return (
       <div className="space-y-1">
         <div className="text-[10px] font-medium text-muted-foreground">
-          Input
+          {t("ai.tools.input")}
         </div>
         {preview}
       </div>
@@ -250,7 +253,7 @@ function ToolInput({ toolName, input }: { toolName: string; input: unknown }) {
   }
   return (
     <div className="space-y-1">
-      <div className="text-[10px] font-medium text-muted-foreground">Input</div>
+      <div className="text-[10px] font-medium text-muted-foreground">{t("ai.tools.input")}</div>
       <CodeBlockMini
         code={
           typeof input === "string" ? input : JSON.stringify(input, null, 2)
@@ -322,10 +325,11 @@ function ToolOutput({
   output: unknown;
   errorText?: string;
 }) {
+  const { t } = useTranslation();
   if (errorText) {
     return (
       <div className="space-y-1">
-        <div className="text-[10px] font-medium text-destructive">Error</div>
+        <div className="text-[10px] font-medium text-destructive">{t("ai.tools.toolError")}</div>
         <div className="rounded bg-destructive/10 px-2 py-1.5 font-mono text-[11px] text-destructive whitespace-pre-wrap">
           {errorText}
         </div>
@@ -334,7 +338,7 @@ function ToolOutput({
   }
   if (output === undefined || output === null) return null;
 
-  const custom = renderToolOutput(toolName, output);
+  const custom = renderToolOutput(toolName, output, t);
   if (custom) return custom;
 
   let body: ReactNode;
@@ -351,18 +355,19 @@ function ToolOutput({
   return (
     <div className="space-y-1">
       <div className="text-[10px] font-medium text-muted-foreground">
-        Output
+        {t("ai.tools.output")}
       </div>
       {body}
     </div>
   );
 }
 
-function renderToolOutput(toolName: string, output: unknown): ReactNode | null {
+function renderToolOutput(toolName: string, output: unknown, t?: (key: string, options?: any) => string): ReactNode | null {
   if (!output || typeof output !== "object") return null;
   const o = output as Record<string, unknown>;
 
   if (toolName === "read_file") {
+    const translate = t || ((key: string) => key);
     const path = typeof o.path === "string" ? o.path : "";
     const size = typeof o.size === "number" ? o.size : null;
     const content = typeof o.content === "string" ? o.content : "";
@@ -370,7 +375,7 @@ function renderToolOutput(toolName: string, output: unknown): ReactNode | null {
     return (
       <div className="flex items-center gap-1.5 font-mono text-[11px]">
         <span className="text-emerald-600 dark:text-emerald-400">✓</span>
-        <span className="text-foreground">read</span>
+        <span className="text-foreground">{translate("ai.tools.readFile")}</span>
         {path ? <span className="text-muted-foreground">· {path}</span> : null}
         {lines != null ? (
           <span className="text-muted-foreground">
@@ -383,12 +388,13 @@ function renderToolOutput(toolName: string, output: unknown): ReactNode | null {
   }
 
   if (toolName === "list_directory") {
+    const translate = t || ((key: string) => key);
     const entries = Array.isArray(o.entries)
       ? (o.entries as Array<{ name: string; kind: string }>)
       : [];
     if (entries.length === 0) {
       return (
-        <div className="text-[11px] italic text-muted-foreground">empty</div>
+        <div className="text-[11px] italic text-muted-foreground">{translate("ai.tools.empty")}</div>
       );
     }
     const dirs = entries.filter(
@@ -444,6 +450,7 @@ function renderToolOutput(toolName: string, output: unknown): ReactNode | null {
   }
 
   if (toolName === "grep") {
+    const translate = t || ((key: string) => key);
     const hits = Array.isArray(o.hits)
       ? (o.hits as Array<{
           rel?: string;
@@ -460,7 +467,7 @@ function renderToolOutput(toolName: string, output: unknown): ReactNode | null {
     if (hits.length === 0) {
       return (
         <div className="text-[11px] italic text-muted-foreground">
-          no matches
+          {translate("ai.tools.noMatches")}
           {filesScanned != null ? ` · ${filesScanned} files scanned` : ""}
         </div>
       );
@@ -490,7 +497,7 @@ function renderToolOutput(toolName: string, output: unknown): ReactNode | null {
           </span>
           {truncated ? (
             <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-amber-700 dark:text-amber-400">
-              truncated
+              {t ? t("ai.tools.truncated") : "truncated"}
             </span>
           ) : null}
         </div>
@@ -499,6 +506,7 @@ function renderToolOutput(toolName: string, output: unknown): ReactNode | null {
   }
 
   if (toolName === "glob") {
+    const translate = t || ((key: string) => key);
     const matches = Array.isArray(o.matches)
       ? (o.matches as string[])
       : Array.isArray(o.paths)
@@ -507,7 +515,7 @@ function renderToolOutput(toolName: string, output: unknown): ReactNode | null {
     if (matches.length === 0) {
       return (
         <div className="text-[11px] italic text-muted-foreground">
-          no matches
+          {translate("ai.tools.noMatches")}
         </div>
       );
     }
@@ -544,13 +552,14 @@ function renderToolOutput(toolName: string, output: unknown): ReactNode | null {
   }
 
   if (toolName === "write_file" || toolName === "create_directory") {
+    const translate = t || ((key: string) => key);
     const path = typeof o.path === "string" ? o.path : "";
     const bytes = typeof o.bytesWritten === "number" ? o.bytesWritten : null;
     return (
       <div className="flex items-center gap-1.5 font-mono text-[11px]">
         <span className="text-emerald-600 dark:text-emerald-400">✓</span>
         <span className="text-foreground">
-          {toolName === "create_directory" ? "created" : "wrote"}
+          {toolName === "create_directory" ? translate("ai.tools.created") : translate("ai.tools.wrote")}
         </span>
         {path ? <span className="text-muted-foreground">· {path}</span> : null}
         {bytes != null ? (
@@ -561,6 +570,7 @@ function renderToolOutput(toolName: string, output: unknown): ReactNode | null {
   }
 
   if (toolName === "bash_background") {
+    const translate = t || ((key: string) => key);
     const handle = typeof o.handle === "string" ? o.handle : null;
     const cmd = typeof o.command === "string" ? o.command : "";
     return (
@@ -568,7 +578,7 @@ function renderToolOutput(toolName: string, output: unknown): ReactNode | null {
         <div className="flex items-center gap-1.5">
           <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
           {handle ? <span className="text-foreground">{handle}</span> : null}
-          <span className="text-muted-foreground">running</span>
+          <span className="text-muted-foreground">{translate("ai.tools.toolRunning")}</span>
         </div>
         {cmd ? (
           <div className="truncate text-muted-foreground">{cmd}</div>
@@ -581,6 +591,7 @@ function renderToolOutput(toolName: string, output: unknown): ReactNode | null {
 }
 
 function BashRunOutput({ data }: { data: Record<string, unknown> }) {
+  const { t } = useTranslation();
   const stdout = typeof data.stdout === "string" ? data.stdout : "";
   const stderr = typeof data.stderr === "string" ? data.stderr : "";
   const exit = typeof data.exit_code === "number" ? data.exit_code : null;
@@ -598,30 +609,30 @@ function BashRunOutput({ data }: { data: Record<string, unknown> }) {
     label: string;
     count: number;
   }> = [
-    { key: "stdout", label: "stdout", count: stdout.length },
-    { key: "stderr", label: "stderr", count: stderr.length },
+    { key: "stdout", label: t("ai.tools.stdout"), count: stdout.length },
+    { key: "stderr", label: t("ai.tools.stderr"), count: stderr.length },
   ];
 
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-1.5">
-        {tabs.map((t) => (
+        {tabs.map((tabItem) => (
           <button
-            key={t.key}
+            key={tabItem.key}
             type="button"
-            onClick={() => setTab(t.key)}
+            onClick={() => setTab(tabItem.key)}
             className={cn(
               "rounded px-1.5 py-0.5 font-mono text-[10px] transition-colors",
-              tab === t.key
+              tab === tabItem.key
                 ? "bg-foreground/10 text-foreground"
                 : "text-muted-foreground hover:text-foreground",
-              t.count === 0 && "opacity-40",
+              tabItem.count === 0 && "opacity-40",
             )}
-            disabled={t.count === 0}
+            disabled={tabItem.count === 0}
           >
-            {t.label}
-            {t.count > 0 ? (
-              <span className="ml-1 text-muted-foreground">{t.count}</span>
+            {tabItem.label}
+            {tabItem.count > 0 ? (
+              <span className="ml-1 text-muted-foreground">{tabItem.count}</span>
             ) : null}
           </button>
         ))}
@@ -635,17 +646,17 @@ function BashRunOutput({ data }: { data: Record<string, unknown> }) {
                 : "bg-destructive/15 text-destructive",
             )}
           >
-            exit {exit}
+            {t("ai.tools.exitCode", { code: exit })}
           </span>
         ) : null}
         {timedOut ? (
           <span className="rounded bg-amber-500/15 px-1.5 py-0.5 font-mono text-[10px] text-amber-700 dark:text-amber-400">
-            timed out
+            {t("ai.tools.timedOut")}
           </span>
         ) : null}
         {truncated ? (
           <span className="rounded bg-amber-500/15 px-1.5 py-0.5 font-mono text-[10px] text-amber-700 dark:text-amber-400">
-            truncated
+            {t("ai.tools.truncated")}
           </span>
         ) : null}
       </div>
@@ -708,6 +719,7 @@ function SuggestCommandCard({
   command: string;
   explanation: string | null;
 }) {
+  const { t } = useTranslation();
   const [inserted, setInserted] = useState(false);
   const onInsert = () => {
     const ok = useChatStore
@@ -735,14 +747,14 @@ function SuggestCommandCard({
             "disabled:opacity-60 disabled:cursor-default disabled:hover:bg-transparent",
             "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
           )}
-          aria-label="Insert into active terminal"
+          aria-label={t("common.insert")}
         >
           <HugeiconsIcon
             icon={inserted ? TerminalIcon : ArrowRight01Icon}
             size={12}
             strokeWidth={1.75}
           />
-          <span>{inserted ? "Inserted" : "Insert"}</span>
+          <span>{inserted ? t("common.inserted") : t("common.insert")}</span>
         </button>
       </div>
     </div>

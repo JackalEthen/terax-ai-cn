@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { FolderGitTwoIcon, FolderTreeIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useTranslation } from "react-i18next";
 import type { SidebarViewId } from "./types";
 
 export const SIDEBAR_RAIL_HEIGHT = 36;
@@ -19,11 +20,12 @@ type Props = {
 };
 
 export function SidebarRail({ activeView, onSelectView, changedCount }: Props) {
+  const { t } = useTranslation();
   const items: RailItem[] = [
-    { id: "explorer", label: "Files", icon: FolderTreeIcon },
+    { id: "explorer", label: t("sidebar.files"), icon: FolderTreeIcon },
     {
       id: "source-control",
-      label: "Source Control",
+      label: t("sidebar.sourceControl"),
       icon: FolderGitTwoIcon,
       badge: changedCount,
     },

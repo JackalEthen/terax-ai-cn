@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { SlashCommandMeta } from "../lib/slashCommands";
 import type { Snippet } from "../lib/snippets";
+import { useTranslation } from "react-i18next";
 
 export type PickerItem =
   | { kind: "snippet"; snippet: Snippet }
@@ -21,6 +22,7 @@ export function SnippetPickerContent({
   onPick,
   onHover,
 }: Props) {
+  const { t } = useTranslation();
   const commands = items.filter((it) => it.kind === "command");
   const snippets = items.filter((it) => it.kind === "snippet");
   let cursor = -1;
@@ -37,13 +39,13 @@ export function SnippetPickerContent({
     >
       {items.length === 0 ? (
         <div className="px-3 py-2.5 text-[11px] text-muted-foreground">
-          No matches. Add snippets in Settings → Agents.
+          {t("ai.snippetPicker.noMatches")}
         </div>
       ) : (
         <div className="max-h-64 overflow-y-auto py-1">
           {commands.length > 0 && (
             <>
-              <SectionHeader label="Pre-built snippets" />
+              <SectionHeader label={t("ai.snippetPicker.prebuiltSnippets")} />
               <ul>
                 {commands.map((it) => {
                   cursor += 1;
@@ -86,7 +88,7 @@ export function SnippetPickerContent({
           )}
           {snippets.length > 0 && (
             <>
-              <SectionHeader label="Snippets" />
+              <SectionHeader label={t("ai.snippetPicker.snippets")} />
               <ul>
                 {snippets.map((it) => {
                   cursor += 1;

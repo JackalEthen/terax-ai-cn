@@ -20,6 +20,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { Shimmer } from "./shimmer";
 
 interface ReasoningContextValue {
@@ -146,17 +147,18 @@ export const Reasoning = memo(
 export type ReasoningTriggerProps = ComponentProps<
   typeof CollapsibleTrigger
 > & {
-  getThinkingMessage?: (isStreaming: boolean, duration?: number) => ReactNode;
+  getThinkingMessage?: (isStreaming: boolean, duration?: number, t?: (key: string, options?: any) => string) => ReactNode;
 };
 
-const defaultGetThinkingMessage = (isStreaming: boolean, duration?: number) => {
+const defaultGetThinkingMessage = (isStreaming: boolean, duration?: number, t?: (key: string, options?: any) => string) => {
+  const translate = t || ((key: string) => key);
   if (isStreaming || duration === 0) {
-    return <Shimmer duration={1}>Thinking</Shimmer>;
+    return <Shimmer duration={1}>{translate("ai.reasoning.thinking")}</Shimmer>;
   }
   if (duration === undefined) {
-    return <span>Reasoned</span>;
+    return <span>{translate("ai.reasoning.reasoned")}</span>;
   }
-  return <span>Reasoned for {duration}s</span>;
+  return <span>{translate("ai.reasoning.reasonedFor", { duration })}</span>;
 };
 
 export const ReasoningTrigger = memo(
@@ -166,6 +168,7 @@ export const ReasoningTrigger = memo(
     getThinkingMessage = defaultGetThinkingMessage,
     ...props
   }: ReasoningTriggerProps) => {
+    const { t } = useTranslation();
     const { isStreaming, isOpen, duration } = useReasoning();
 
     return (
@@ -178,7 +181,7 @@ export const ReasoningTrigger = memo(
       >
         {children ?? (
           <>
-            {getThinkingMessage(isStreaming, duration)}
+            {getThinkingMessage(isStreaming, duration, t)}
             <HugeiconsIcon
               icon={ArrowDown01Icon}
               size={11}

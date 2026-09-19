@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 import {
   PreviewAddressBar,
   type PreviewAddressBarHandle,
@@ -30,6 +31,7 @@ const SUSPEND_AFTER_MS = 30_000;
 
 export const PreviewPane = forwardRef<PreviewPaneHandle, Props>(
   function PreviewPane({ url, visible, onUrlChange }, ref) {
+    const { t } = useTranslation();
     // `nonce` is part of the iframe `key`. Bumping it remounts the iframe,
     // which is the only reliable cross-origin reload (calling
     // contentWindow.location.reload() throws on cross-origin frames).
@@ -84,8 +86,7 @@ export const PreviewPane = forwardRef<PreviewPaneHandle, Props>(
               className="shrink-0"
             />
             <span className="truncate">
-              Many public sites refuse to embed (X-Frame-Options). If the page
-              is blank, open it externally.
+              {t('preview.embedWarning')}
             </span>
           </div>
         ) : null}
@@ -131,6 +132,7 @@ export const PreviewPane = forwardRef<PreviewPaneHandle, Props>(
 );
 
 function SuspendedState({ onReload }: { onReload: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-3 px-6 text-center">
       <div className="flex size-10 items-center justify-center rounded-2xl border border-border/60 bg-card text-muted-foreground">
@@ -138,10 +140,10 @@ function SuspendedState({ onReload }: { onReload: () => void }) {
       </div>
       <div className="space-y-1">
         <p className="text-[12.5px] font-medium text-foreground">
-          Preview suspended
+          {t('preview.suspended')}
         </p>
         <p className="max-w-xs text-[11px] leading-relaxed text-muted-foreground">
-          Released to free memory after sitting in the background.
+          {t('preview.suspendedDesc')}
         </p>
       </div>
       <button
@@ -149,13 +151,14 @@ function SuspendedState({ onReload }: { onReload: () => void }) {
         onClick={onReload}
         className="rounded-md border border-border/60 bg-card px-3 py-1 text-[11px] hover:bg-accent/50"
       >
-        Reload
+        {t('preview.reload')}
       </button>
     </div>
   );
 }
 
 function EmptyState() {
+  const { t } = useTranslation();
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
       <div className="flex size-12 items-center justify-center rounded-2xl border border-border/60 bg-card text-muted-foreground">
@@ -163,7 +166,7 @@ function EmptyState() {
       </div>
       <div className="space-y-1.5">
         <p className="text-sm font-medium text-foreground">
-          Nothing to preview yet
+          {t('preview.nothingToPreview')}
         </p>
         <p className="max-w-sm text-xs leading-relaxed text-muted-foreground">
           Type a URL above, or open the{" "}

@@ -45,17 +45,18 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { invoke } from "@tauri-apps/api/core";
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
 import { useEffect, useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { SectionHeader } from "../components/SectionHeader";
 import { SettingRow } from "../components/SettingRow";
 
 const APPEARANCE: {
   id: ThemePref;
-  label: string;
+  labelKey: string;
   icon: typeof ComputerIcon;
 }[] = [
-  { id: "system", label: "System", icon: ComputerIcon },
-  { id: "light", label: "Light", icon: Sun03Icon },
-  { id: "dark", label: "Dark", icon: Moon02Icon },
+  { id: "system", labelKey: "settings.general.system", icon: ComputerIcon },
+  { id: "light", labelKey: "settings.general.light", icon: Sun03Icon },
+  { id: "dark", labelKey: "settings.general.dark", icon: Moon02Icon },
 ];
 
 const TERMINAL_FONT_WEIGHTS = [
@@ -73,6 +74,7 @@ const ZOOM_MAX = 2.0;
 const ZOOM_STEP = 0.05;
 
 export function GeneralSection() {
+  const { t, i18n } = useTranslation();
   const { mode, setMode } = useTheme();
 
   const autostart = usePreferencesStore((s) => s.autostart);
@@ -136,12 +138,12 @@ export function GeneralSection() {
   return (
     <div className="flex flex-col gap-6">
       <SectionHeader
-        title="General"
-        description="Mode, terminal, and startup."
+        title={t("settings.general.title")}
+        description={t("settings.general.description")}
       />
 
       <div className="flex flex-col gap-2">
-        <Label>Appearance</Label>
+        <Label>{t("settings.general.appearance")}</Label>
         <div className="grid grid-cols-3 gap-2">
           {APPEARANCE.map((o) => (
             <button
@@ -156,22 +158,46 @@ export function GeneralSection() {
               )}
             >
               <HugeiconsIcon icon={o.icon} size={18} strokeWidth={1.5} />
-              <span className="text-[11.5px]">{o.label}</span>
+              <span className="text-[11.5px]">{t(o.labelKey)}</span>
             </button>
           ))}
         </div>
         <p className="text-[11px] text-muted-foreground">
-          For theme, background and customization, see the{" "}
-          <strong className="font-medium text-foreground">Themes</strong> tab.
+          <Trans i18nKey="settings.general.appearanceNote">
+            For theme, background and customization, see the{" "}
+            <strong className="font-medium text-foreground">Themes</strong> tab.
+          </Trans>
         </p>
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label>Zoom</Label>
+        <Label>{t("settings.general.language")}</Label>
+        <Select
+          value={i18n.language.startsWith("en") ? "en" : "zh-CN"}
+          onValueChange={(v) => void i18n.changeLanguage(v)}
+        >
+          <SelectTrigger className="h-9 w-[180px] text-[12px]">
+            <SelectValue>
+              {i18n.language.startsWith("en")
+                ? t("settings.general.english")
+                : t("settings.general.chinese")}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="zh-CN">
+              {t("settings.general.chinese")}
+            </SelectItem>
+            <SelectItem value="en">{t("settings.general.english")}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Label>{t("settings.general.zoom")}</Label>
         <div className="flex flex-col gap-3 rounded-lg border border-border/60 p-3">
           <div className="flex items-center justify-between gap-3">
             <span className="text-[11.5px] text-muted-foreground">
-              UI zoom level
+              {t("settings.general.uiZoomLevel")}
             </span>
             <span className="tabular-nums text-[11px] text-muted-foreground">
               {Math.round(zoomLevel * 100)}%
@@ -188,10 +214,10 @@ export function GeneralSection() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label>Explorer</Label>
+        <Label>{t("settings.general.explorer")}</Label>
         <SettingRow
-          title="Show hidden files"
-          description="Include dot-prefixed files and folders (.env, .gitignore, .config) in the file explorer and search."
+          title={t("settings.general.showHidden")}
+          description={t("settings.general.showHiddenDesc")}
         >
           <Switch
             checked={showHidden}
@@ -199,8 +225,8 @@ export function GeneralSection() {
           />
         </SettingRow>
         <SettingRow
-          title="Git decorations"
-          description="Tint changed files and dim gitignored entries in the file explorer."
+          title={t("settings.general.gitDecorations")}
+          description={t("settings.general.gitDecorationsDesc")}
         >
           <Switch
             checked={explorerGitDecorations}
@@ -210,33 +236,29 @@ export function GeneralSection() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label>Terminal</Label>
+        <Label>{t("settings.general.terminal")}</Label>
         <SettingRow
           title={
             <span className="inline-flex items-center gap-1.5">
-              Use WebGL renderer
+              {t("settings.general.webgl")}
               <TooltipProvider delayDuration={200}>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span
                       className="cursor-help text-[11px] text-muted-foreground/70 leading-none"
-                      aria-label="More info about WebGL renderer"
+                      aria-label={t("settings.general.webglInfo")}
                     >
                       ⓘ
                     </span>
                   </TooltipTrigger>
                   <TooltipContent side="top" className="max-w-65 text-[11px]">
-                    xterm's WebGL renderer caches glyphs in a GPU texture atlas.
-                    On some macOS setups (especially with Nerd Fonts), the atlas
-                    corrupts and terminal text becomes unreadable. Turn this off
-                    as a fallback — performance dips slightly, but text renders
-                    correctly via the DOM renderer.
+                    {t("settings.general.webglTooltip")}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </span>
           }
-          description="Hardware-accelerated rendering. Turn off if text shows corruption or blank tiles."
+          description={t("settings.general.webglDesc")}
         >
           <Switch
             checked={terminalWebglEnabled}
@@ -244,8 +266,8 @@ export function GeneralSection() {
           />
         </SettingRow>
         <SettingRow
-          title="Cursor blinking"
-          description="Blink the terminal cursor. Off by default for lower idle CPU, matching VS Code and the macOS terminal."
+          title={t("settings.general.cursorBlink")}
+          description={t("settings.general.cursorBlinkDesc")}
         >
           <Switch
             checked={terminalCursorBlink}
@@ -257,8 +279,8 @@ export function GeneralSection() {
           onCommit={(v) => void setTerminalFontFamily(v)}
         />
         <SettingRow
-          title="Font weight"
-          description="Thickness of terminal characters"
+          title={t("settings.general.fontWeight")}
+          description={t("settings.general.fontWeightDesc")}
         >
           <Select
             value={terminalFontWeight}
@@ -284,7 +306,7 @@ export function GeneralSection() {
           </Select>
         </SettingRow>
         <SettingRow
-          title="Integrated terminal shell"
+          title={t("settings.general.integratedShell")}
           description={
             shells.find((s) => s.path === terminalShell)?.integrated === false
               ? "Command blocks and directory tracking are unavailable for this shell."
@@ -319,7 +341,7 @@ export function GeneralSection() {
         </SettingRow>
         {(wslDistros.length > 0 || defaultWorkspaceEnv !== "local") && (
           <SettingRow
-            title="Workspace environment"
+            title={t("settings.general.workspaceEnv")}
             description="Where new spaces run, terminal and AI agent alike: Windows or a WSL distro. Existing spaces keep theirs; switch any from the status bar."
           >
             <Select
@@ -361,8 +383,8 @@ export function GeneralSection() {
           </SettingRow>
         )}
         <SettingRow
-          title="Letter spacing"
-          description="Extra horizontal space between characters (px). Use negative values to tighten Nerd Fonts."
+          title={t("settings.general.letterSpacing")}
+          description={t("settings.general.letterSpacingDesc")}
         >
           <Select
             value={String(terminalLetterSpacing)}
@@ -380,7 +402,7 @@ export function GeneralSection() {
             </SelectContent>
           </Select>
         </SettingRow>
-        <SettingRow title="Font size" description="Terminal text size.">
+        <SettingRow title={t("settings.general.fontSize")} description={t("settings.general.fontSizeDesc")}>
           <Select
             value={String(terminalFontSize)}
             onValueChange={(v) => void setTerminalFontSize(Number(v))}
@@ -402,8 +424,8 @@ export function GeneralSection() {
           </Select>
         </SettingRow>
         <SettingRow
-          title="Scrollback"
-          description="Lines of history kept per terminal. Higher uses more RAM (~3 KB / line)."
+          title={t("settings.general.scrollback")}
+          description={t("settings.general.scrollbackDesc")}
         >
           <Select
             value={String(terminalScrollback)}
@@ -428,10 +450,10 @@ export function GeneralSection() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label>Agents</Label>
+        <Label>{t("settings.general.agents")}</Label>
         <SettingRow
-          title="Coding agent notifications"
-          description="Alert when Claude Code or Codex running in a terminal needs your input or finishes. Desktop notification when Terax is unfocused, in-app otherwise."
+          title={t("settings.general.agentNotifications")}
+          description={t("settings.general.agentNotificationsDesc")}
         >
           <Switch
             checked={agentNotifications}
@@ -441,11 +463,11 @@ export function GeneralSection() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label>Startup</Label>
+        <Label>{t("settings.general.startup")}</Label>
         <div className="flex flex-col gap-2">
           <SettingRow
-            title="Launch at login"
-            description="Open Terax automatically when you sign in."
+            title={t("settings.general.autostart")}
+            description={t("settings.general.autostartDesc")}
           >
             <Switch
               checked={autostart}
@@ -453,8 +475,8 @@ export function GeneralSection() {
             />
           </SettingRow>
           <SettingRow
-            title="Restore window position & size"
-            description="Reopen the main window where you left it. Applies on next launch."
+            title={t("settings.general.restoreWindow")}
+            description={t("settings.general.restoreWindowDesc")}
           >
             <Switch
               checked={restoreWindowState}
@@ -482,6 +504,7 @@ function FontFamilyInput({
   value: string;
   onCommit: (v: string) => void;
 }) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState(value);
 
   useEffect(() => {
@@ -498,13 +521,13 @@ function FontFamilyInput({
 
   return (
     <SettingRow
-      title="Font family"
-      description='Nerd Font name for icons (e.g. "CaskaydiaCove Nerd Font Mono"). Leave blank to auto-detect.'
+      title={t("settings.general.fontFamily")}
+      description={t("settings.general.fontFamilyDesc")}
     >
       <input
         type="text"
         value={draft}
-        placeholder="Auto-detect"
+        placeholder={t("settings.general.fontFamilyPlaceholder")}
         onChange={(e) => setDraft(e.target.value)}
         onBlur={commit}
         onKeyDown={(e) => {

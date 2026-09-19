@@ -105,7 +105,9 @@
     "tailwind-merge": "^3.6.0",
     "use-stick-to-bottom": "^1.1.6",
     "zod": "^4.4.3",
-    "zustand": "^5.0.14"
+    "zustand": "^5.0.14",
+    "i18next-browser-languagedetector": "^8.2.1",
+    "react-i18next": "^15.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
@@ -130,6 +132,7 @@
     "typescript": "~6.0.3",
     "vite": "^8.1.5",
     "vite-plugin-inspect": "^11.4.1",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "i18next": "^25.10.10"
   }
 }

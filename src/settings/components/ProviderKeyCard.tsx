@@ -15,6 +15,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ProviderIcon } from "./ProviderIcon";
 
 type Props = {
@@ -37,6 +38,7 @@ export function ProviderKeyCard({
   onClear,
   onRemove,
 }: Props) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(!currentKey);
   const [value, setValue] = useState("");
   const [reveal, setReveal] = useState(false);
@@ -50,11 +52,11 @@ export function ProviderKeyCard({
   const submit = async () => {
     const trimmed = value.trim();
     if (!trimmed) {
-      setError("Enter your API key.");
+      setError(t("settings.providerKey.enterKey"));
       return;
     }
     if (provider.keyPrefix && !trimmed.startsWith(provider.keyPrefix)) {
-      setError(`${provider.label} keys start with "${provider.keyPrefix}".`);
+      setError(t("settings.providerKey.keyPrefixHint", { label: provider.label, prefix: provider.keyPrefix }));
       return;
     }
     setSaving(true);
@@ -64,7 +66,7 @@ export function ProviderKeyCard({
       setValue("");
       setReveal(false);
     } catch (e) {
-      setError(`Failed to save: ${String(e)}`);
+      setError(t("settings.providerKey.failedToSave", { error: String(e) }));
     } finally {
       setSaving(false);
     }
@@ -85,7 +87,7 @@ export function ProviderKeyCard({
               size={9}
               strokeWidth={2}
             />
-            Connected
+            {t("settings.providerKey.configured")}
           </Badge>
         ) : null}
         <button
@@ -93,7 +95,7 @@ export function ProviderKeyCard({
           onClick={() => void openUrl(provider.consoleUrl)}
           className="ml-auto inline-flex items-center gap-0.5 text-[10.5px] text-muted-foreground transition-colors hover:text-foreground"
         >
-          Get key
+          {t("settings.providerKey.getKey")}
           <HugeiconsIcon
             icon={ArrowUpRight01Icon}
             size={11}
@@ -105,7 +107,7 @@ export function ProviderKeyCard({
             size="icon"
             variant="ghost"
             onClick={onRemove}
-            title="Remove provider"
+            title={t("settings.models.removeProvider")}
             className="size-7 text-muted-foreground hover:text-destructive"
           >
             <HugeiconsIcon icon={Cancel01Icon} size={12} strokeWidth={1.75} />
@@ -124,7 +126,7 @@ export function ProviderKeyCard({
                 placeholder={
                   provider.keyPrefix
                     ? `${provider.keyPrefix}…`
-                    : "Paste API key"
+                    : t("settings.providerKey.pasteApiKey")
                 }
                 value={value}
                 disabled={saving}
@@ -150,7 +152,7 @@ export function ProviderKeyCard({
                 onClick={() => setReveal((v) => !v)}
                 tabIndex={-1}
                 className="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground"
-                aria-label={reveal ? "Hide key" : "Show key"}
+                aria-label={reveal ? t("settings.providerKey.hideKey") : t("settings.providerKey.showKey")}
               >
                 <HugeiconsIcon
                   icon={reveal ? ViewOffSlashIcon : ViewIcon}
@@ -166,7 +168,7 @@ export function ProviderKeyCard({
               className="h-8 gap-1 px-3 text-[11px]"
             >
               {saving ? <Spinner className="size-3" /> : null}
-              Save
+              {t("common.save")}
             </Button>
           </div>
           {error ? (
@@ -186,7 +188,7 @@ export function ProviderKeyCard({
             size="icon"
             variant="ghost"
             onClick={() => setEditing(true)}
-            title="Replace"
+            title={t("common.replace")}
             className="size-7"
           >
             <HugeiconsIcon icon={Edit02Icon} size={12} strokeWidth={1.75} />
@@ -196,7 +198,7 @@ export function ProviderKeyCard({
               size="icon"
               variant="ghost"
               onClick={() => void onClear()}
-              title="Remove"
+              title={t("settings.providerKey.remove")}
               className="size-7 text-muted-foreground hover:text-destructive"
             >
               <HugeiconsIcon icon={Cancel01Icon} size={12} strokeWidth={1.75} />

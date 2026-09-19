@@ -1,4 +1,5 @@
 import { type RefObject, useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { homeDir } from "@tauri-apps/api/path";
 import { native } from "@/modules/ai/lib/native";
 import type { Tab } from "@/modules/tabs";
@@ -35,6 +36,7 @@ export function useWorkspaceSwitcher({
   resetWorkspace,
   clearWorkspaceState,
 }: Params) {
+  const { t } = useTranslation();
   const [home, setHome] = useState<string | null>(null);
   const [launchCwd, setLaunchCwd] = useState<string | null>(null);
   const [launchCwdResolved, setLaunchCwdResolved] = useState(false);
@@ -82,9 +84,7 @@ export function useWorkspaceSwitcher({
       }
       const dirty = tabsRef.current.some((t) => t.kind === "editor" && t.dirty);
       if (dirty) {
-        window.alert(
-          "Save or close unsaved editor tabs before switching workspace.",
-        );
+        window.alert(t("app.saveOrClose"));
         return false;
       }
 

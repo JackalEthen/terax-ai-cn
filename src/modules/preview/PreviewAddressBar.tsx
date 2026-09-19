@@ -20,6 +20,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 
 type PortPreset = {
   port: number;
@@ -59,6 +60,7 @@ type Props = {
 
 export const PreviewAddressBar = forwardRef<PreviewAddressBarHandle, Props>(
   function PreviewAddressBar({ url, onSubmit, onReload }, ref) {
+    const { t } = useTranslation();
     const [draft, setDraft] = useState(url);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -87,7 +89,7 @@ export const PreviewAddressBar = forwardRef<PreviewAddressBarHandle, Props>(
     const submit = () => {
       const next = normalizeUrl(draft);
       if (!next) {
-        setNotice("Enter a URL or pick a port preset.");
+        setNotice(t('preview.enterUrl'));
         return;
       }
       setNotice(null);
@@ -102,7 +104,7 @@ export const PreviewAddressBar = forwardRef<PreviewAddressBarHandle, Props>(
       const ok = await probeUrl(url);
       setCheckingPort(null);
       if (!ok) {
-        setNotice(`No server listening on :${port}.`);
+        setNotice(t('preview.noServer', { port }));
         return;
       }
       setDraft(url);
@@ -117,7 +119,7 @@ export const PreviewAddressBar = forwardRef<PreviewAddressBarHandle, Props>(
           variant="ghost"
           size="icon"
           onClick={onReload}
-          title="Reload"
+          title={t('preview.reload')}
           className="size-7 shrink-0 rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
         >
           <HugeiconsIcon
@@ -132,7 +134,7 @@ export const PreviewAddressBar = forwardRef<PreviewAddressBarHandle, Props>(
               type="button"
               variant="ghost"
               size="sm"
-              title="Common dev-server ports"
+              title={t('preview.commonPorts')}
               className="h-7 shrink-0 gap-1 rounded-md px-1.5 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
             >
               <HugeiconsIcon
@@ -140,7 +142,7 @@ export const PreviewAddressBar = forwardRef<PreviewAddressBarHandle, Props>(
                 size={13}
                 strokeWidth={1.75}
               />
-              <span className="hidden sm:inline">Ports</span>
+              <span className="hidden sm:inline">{t('preview.ports')}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -157,7 +159,7 @@ export const PreviewAddressBar = forwardRef<PreviewAddressBarHandle, Props>(
               >
                 <span className="flex-1">{p.label}</span>
                 <span className="text-xs text-muted-foreground">
-                  {checkingPort === p.port ? "checking…" : `:${p.port}`}
+                  {checkingPort === p.port ? t('preview.checking') : `:${p.port}`}
                 </span>
               </DropdownMenuItem>
             ))}
@@ -167,7 +169,7 @@ export const PreviewAddressBar = forwardRef<PreviewAddressBarHandle, Props>(
           <Input
             ref={inputRef}
             value={draft}
-            placeholder="http://localhost:3000"
+            placeholder={t('preview.placeholder')}
             spellCheck={false}
             autoComplete="off"
             className="h-7 w-full bg-muted/60 px-2 text-xs placeholder:text-muted-foreground/70 focus-visible:ring-0"
@@ -191,7 +193,7 @@ export const PreviewAddressBar = forwardRef<PreviewAddressBarHandle, Props>(
           onClick={() => {
             if (url) void openUrl(url).catch(console.error);
           }}
-          title="Open in system browser"
+          title={t('preview.openInBrowser')}
           className="size-7 shrink-0 rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
           disabled={!url}
         >
@@ -210,7 +212,7 @@ export const PreviewAddressBar = forwardRef<PreviewAddressBarHandle, Props>(
             onClick={() => setNotice(null)}
             className="ml-auto rounded px-1 text-[10px] opacity-80 hover:bg-accent hover:opacity-100"
           >
-            Dismiss
+            {t('common.dismiss')}
           </button>
         </div>
       ) : null}

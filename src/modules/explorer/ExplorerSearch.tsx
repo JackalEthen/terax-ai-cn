@@ -22,6 +22,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { usePreferencesStore } from "@/modules/settings/preferences";
 import { fileIconUrl } from "./lib/iconResolver";
 import { copyToClipboard, revealInFinder } from "./lib/contextActions";
@@ -69,6 +70,7 @@ export const ExplorerSearch = forwardRef<ExplorerSearchHandle, Props>(function E
 }: Props,
   ref,
 ) {
+  const { t } = useTranslation();
   const showHidden = usePreferencesStore((s) => s.showHidden);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchHit[]>([]);
@@ -204,7 +206,7 @@ export const ExplorerSearch = forwardRef<ExplorerSearchHandle, Props>(function E
                 }
               }
             }}
-            placeholder="Search files…"
+            placeholder={t("explorer.searchFilesPlaceholder")}
             className="h-7 pr-7 pl-6.5 text-xs"
           />
           {query ? (
@@ -212,7 +214,7 @@ export const ExplorerSearch = forwardRef<ExplorerSearchHandle, Props>(function E
               type="button"
               onClick={() => setQuery("")}
               className="absolute top-1/2 right-3.5 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground"
-              aria-label="Clear search"
+              aria-label={t("search.clearSearch")}
             >
               <HugeiconsIcon icon={Cancel01Icon} size={11} strokeWidth={2} />
             </button>

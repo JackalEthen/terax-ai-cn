@@ -10,6 +10,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { usePlanStore, type QueuedEdit } from "../store/planStore";
 
 function basename(p: string): string {
@@ -33,6 +34,7 @@ function diffStats(
 }
 
 export function PlanDiffReview() {
+  const { t } = useTranslation();
   const queue = usePlanStore((s) => s.queue);
   const removeOne = usePlanStore((s) => s.removeOne);
   const clear = usePlanStore((s) => s.clear);
@@ -59,10 +61,10 @@ export function PlanDiffReview() {
       <div className="flex items-center justify-between border-b border-border/40 px-3 py-2">
         <div className="flex flex-col">
           <span className="text-[13px] font-semibold tracking-tight">
-            Plan review
+            {t("ai.planReview.planReview")}
           </span>
           <span className="text-[10.5px] text-muted-foreground">
-            {queue.length} pending change{queue.length === 1 ? "" : "s"}
+            {t("ai.planReview.pendingChanges", { count: queue.length })}
           </span>
         </div>
         <div className="flex items-center gap-1.5">
@@ -75,7 +77,7 @@ export function PlanDiffReview() {
             disabled={busy}
           >
             <HugeiconsIcon icon={Cancel01Icon} size={12} strokeWidth={2} />
-            Discard all
+            {t("ai.planReview.discardAll")}
           </Button>
           <Button
             type="button"
@@ -85,7 +87,7 @@ export function PlanDiffReview() {
             disabled={busy}
           >
             <HugeiconsIcon icon={Tick02Icon} size={12} strokeWidth={2} />
-            Apply {queue.length}
+            {t("ai.planReview.apply", { count: queue.length })}
           </Button>
         </div>
       </div>
@@ -105,6 +107,7 @@ function PlanRow({
   item: QueuedEdit;
   onReject: () => void;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const isDir = item.kind === "create_directory";
   const isNew = item.isNewFile && !isDir;
@@ -146,7 +149,7 @@ function PlanRow({
             </span>
             {isNew ? (
               <span className="text-[10px] text-emerald-600 dark:text-emerald-400">
-                new
+                {t("ai.planReview.new")}
               </span>
             ) : null}
           </div>
@@ -165,7 +168,7 @@ function PlanRow({
             </div>
           ) : (
             <div className="mt-0.5 text-[10px] text-muted-foreground">
-              {item.description ?? "create directory"}
+              {item.description ?? t("ai.planReview.createDir")}
             </div>
           )}
         </div>
@@ -199,6 +202,7 @@ function UnifiedDiffPreview({
   original: string;
   proposed: string;
 }) {
+  const { t } = useTranslation();
   // Coarse line-level diff (LCS-lite via set membership). For real diffs
   // we'd reach for a library; this is good enough for at-a-glance review.
   const a = original.split("\n");
@@ -215,7 +219,7 @@ function UnifiedDiffPreview({
   if (lines.length === 0) {
     return (
       <div className="text-[11px] italic text-muted-foreground">
-        no line-level changes
+        {t("ai.planReview.noLineChanges")}
       </div>
     );
   }
@@ -247,7 +251,7 @@ function UnifiedDiffPreview({
         ))}
         {rest > 0 ? (
           <div className="px-2 py-1 text-[10px] italic text-muted-foreground">
-            … {rest} more changes
+            {t("ai.planReview.moreChanges", { count: rest })}
           </div>
         ) : null}
       </div>

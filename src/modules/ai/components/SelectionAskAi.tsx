@@ -2,6 +2,7 @@ import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { fmtShortcut, MOD_KEY } from "@/lib/platform";
 import type { PresenceState } from "@/lib/usePresence";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 export type SelectionAskAiProps = {
   state: PresenceState;
@@ -21,6 +22,7 @@ export function SelectionAskAi({
   onAsk,
   onDismiss,
 }: SelectionAskAiProps) {
+  const { t } = useTranslation();
   const pos = useRef({ top: 0, left: 0 });
   const open = state === "open";
 
@@ -55,7 +57,7 @@ export function SelectionAskAi({
         }}
         className="flex h-7 w-full items-center justify-between gap-1.5 rounded-md border border-border/60 bg-card/95 px-2 text-xs shadow-lg backdrop-blur-md hover:border-border hover:bg-accent"
       >
-        <span>Ask Terax</span>
+        <span>{t("ai.selectionAsk.askTerax")}</span>
         <KbdGroup>
           <Kbd className="h-4 min-w-4 px-1 text-[10px]">
             {fmtShortcut(MOD_KEY, "L")}

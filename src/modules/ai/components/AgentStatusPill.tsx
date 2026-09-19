@@ -2,6 +2,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { AlertCircleIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useTranslation } from "react-i18next";
 import { useChatStore, type AgentMeta } from "../store/chatStore";
 
 type Props = {
@@ -9,13 +10,14 @@ type Props = {
 };
 
 export function AgentStatusPill({ onClick }: Props) {
+  const { t } = useTranslation();
   const meta = useChatStore((s) => s.agentMeta);
 
   // awaiting-approval is surfaced by the notification + auto-opened mini window.
   if (meta.status === "awaiting-approval") return null;
   if (meta.status === "idle" && !meta.error) return null;
 
-  const { tone, icon, label } = describe(meta);
+  const { tone, icon, label } = describe(meta, t);
 
   return (
     <button
@@ -27,7 +29,7 @@ export function AgentStatusPill({ onClick }: Props) {
         "animate-in fade-in-0 slide-in-from-top-1 duration-150 ease-out",
         tone,
       )}
-      title="Open AI log"
+      title={t("ai.agentStatus.openAiLog")}
     >
       {icon}
       <span className="max-w-[180px] truncate">{label}</span>
@@ -35,7 +37,7 @@ export function AgentStatusPill({ onClick }: Props) {
   );
 }
 
-function describe(meta: AgentMeta): {
+function describe(meta: AgentMeta, t: (key: string) => string): {
   tone: string;
   icon: React.ReactNode;
   label: string;
@@ -47,7 +49,7 @@ function describe(meta: AgentMeta): {
       icon: (
         <HugeiconsIcon icon={AlertCircleIcon} size={12} strokeWidth={1.75} />
       ),
-      label: meta.error ?? "Error",
+      label: meta.error ?? t("ai.tools.toolError"),
     };
   }
   // thinking | streaming
@@ -55,6 +57,6 @@ function describe(meta: AgentMeta): {
     tone:
       "border-border/60 bg-card text-muted-foreground hover:text-foreground",
     icon: <Spinner className="size-3" />,
-    label: meta.step ?? "Thinking…",
+    label: meta.step ?? t("ai.agentStatus.thinking"),
   };
 }

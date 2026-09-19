@@ -1,6 +1,7 @@
 import { CodeIcon, HashtagIcon, TerminalIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import type { FileAttachment } from "../lib/composer";
 import type { Snippet } from "../lib/snippets";
 import { Chip } from "./Chip";
@@ -27,6 +28,7 @@ export function ChipsRow({
   onRemoveCommand,
   leading,
 }: Props) {
+  const { t } = useTranslation();
   const hasAttachments =
     files.length > 0 || snippets.length > 0 || commands.length > 0;
   if (!leading && !hasAttachments) return null;
@@ -39,7 +41,7 @@ export function ChipsRow({
           icon={cmd.icon}
           title={cmd.label}
           onRemove={() => onRemoveCommand(cmd.name)}
-          removeLabel="Remove command"
+          removeLabel={t("ai.input.removeCommand")}
         >
           #{cmd.name}
         </Chip>
@@ -51,7 +53,7 @@ export function ChipsRow({
           icon={HashtagIcon}
           title={s.description || s.name}
           onRemove={() => onRemoveSnippet(s.id)}
-          removeLabel="Remove snippet"
+          removeLabel={t("ai.input.removeSnippet")}
         >
           {s.handle}
         </Chip>

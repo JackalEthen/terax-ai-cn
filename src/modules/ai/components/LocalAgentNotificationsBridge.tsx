@@ -3,6 +3,7 @@ import { useWindowFocus } from "@/modules/agents/lib/useWindowFocus";
 import { useAgentStore } from "@/modules/agents/store/agentStore";
 import type { AgentStatus } from "@/modules/agents/lib/types";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useChatStore } from "../store/chatStore";
 
 const AGENT = "Terax";
@@ -25,6 +26,7 @@ function liveStatus(s: RunStatus): AgentStatus | null {
 }
 
 export function LocalAgentNotificationsBridge() {
+  const { t } = useTranslation();
   const status = useChatStore((s) => s.agentMeta.status) as RunStatus;
   const error = useChatStore((s) => s.agentMeta.error);
   const visible = useChatStore((s) => s.panelOpen || s.mini.open);
@@ -63,13 +65,17 @@ export function LocalAgentNotificationsBridge() {
       });
 
     if (status === "awaiting-approval") {
-      fire("attention", "Terax needs your approval", "Approve a tool to continue");
+      fire(
+        "attention",
+        t("agents.local.needsApproval"),
+        t("agents.local.approveToContinue"),
+      );
     } else if (status === "error") {
-      fire("error", "Terax run failed", error ?? undefined);
+      fire("error", t("agents.local.runFailed"), error ?? undefined);
     } else if (status === "idle" && isBusy(was)) {
-      fire("finished", "Terax finished", "Your task is ready");
+      fire("finished", t("agents.local.finished"), t("agents.local.taskReady"));
     }
-  }, [status, error]);
+  }, [status, error, t]);
 
   return null;
 }
