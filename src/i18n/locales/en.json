@@ -26,7 +26,9 @@
     "previous": "Previous",
     "next": "Next",
     "collapse": "Collapse",
-    "expand": "Expand"
+    "expand": "Expand",
+    "retry": "Retry",
+    "searching": "Searching…"
   },
   "settings": {
     "tabs": {
@@ -87,7 +89,11 @@
       "autostart": "Launch at login",
       "autostartDesc": "Open Terax automatically when you sign in.",
       "restoreWindow": "Restore window position & size",
-      "restoreWindowDesc": "Reopen the main window where you left it. Applies on next launch."
+      "restoreWindowDesc": "Reopen the main window where you left it. Applies on next launch.",
+      "shellNoTrack": "Command blocks and directory tracking are unavailable for this shell.",
+      "shellWsl": "Shell for the integrated terminal. WSL spaces use the distro login shell. Existing tabs keep their shell.",
+      "shellDefault": "Shell for new terminal tabs. Existing tabs keep their shell.",
+      "workspaceEnvDesc": "Where new spaces run, terminal and AI agent alike: Windows or a WSL distro. Existing spaces keep theirs; switch any from the status bar."
     },
     "shortcuts": {
       "title": "Shortcuts",
@@ -194,7 +200,8 @@
       "viewOnGithub": "View on GitHub",
       "reportIssue": "Report an issue",
       "localization": "Localization",
-      "localizationDesc": "This software is based on terax-ai (Apache License 2.0) with Chinese localization modifications."
+      "localizationDesc": "This software is based on terax-ai (Apache License 2.0) with Chinese localization modifications.",
+      "bundleID": "Bundle ID"
     },
     "updater": {
       "upToDate": "You're up to date",
@@ -216,6 +223,80 @@
       "hideKey": "Hide key",
       "showKey": "Show key",
       "remove": "Remove key"
+    },
+    "lsp": {
+      "languageServers": "Language servers",
+      "checking": "checking...",
+      "notOnPath": "not found on PATH",
+      "detectAgain": "Detect again",
+      "removeServer": "Remove server",
+      "addCustomServer": "Add custom server",
+      "customLanguageServer": "Custom language server",
+      "name": "Name",
+      "command": "Command",
+      "arguments": "Arguments",
+      "fileExtensions": "File extensions",
+      "languageId": "LSP language id",
+      "rootMarkers": "Root markers",
+      "addServer": "Add server",
+      "aria": {
+        "enable": "Enable {{name}} language server",
+        "disable": "Disable {{name}} language server"
+      }
+    },
+    "editor": {
+      "title": "Editor",
+      "description": "Editing behavior, saving, and language servers.",
+      "appearance": "Appearance",
+      "fontSize": "Font size",
+      "fontSizeDesc": "Code editor text size.",
+      "px": "px",
+      "editing": "Editing",
+      "vimMode": "Vim mode",
+      "vimModeDesc": "Enable Vim keybindings in the code editor.",
+      "wordWrap": "Word wrap",
+      "wordWrapDesc": "Wrap long lines instead of scrolling horizontally.",
+      "saving": "Saving",
+      "autoSave": "Auto save",
+      "autoSaveDesc": "Automatically save files after a delay when changes are detected.",
+      "autoSaveDelay": "Auto save delay",
+      "autoSaveDelayDesc": "Delay before unsaved changes are saved automatically.",
+      "ms": "ms",
+      "formatOnSave": "Format on save",
+      "formatOnSaveDesc": "Format the file on explicit save (Cmd+S / :w) with the formatter below.",
+      "formatter": "Formatter",
+      "formatterDesc": "Language server formats the buffer before writing; external tools run on the saved file from your PATH.",
+      "formatterLsp": "Language server",
+      "formatterCustom": "Custom command",
+      "customCommand": "Custom command",
+      "customCommandDesc": "Runs on the saved file; {{file}} is replaced with the quoted path (appended when omitted).",
+      "customCommandPlaceholder": "mytool --fix {{file}}",
+      "languageOverrides": "Language overrides",
+      "languageOverridesDesc": "Use a different formatter for specific languages (e.g. Ruff for Python).",
+      "addOverride": "Add override",
+      "removeOverride": "Remove override"
+    },
+    "themes": {
+      "title": "Themes",
+      "description": "Theme, background image, and customization.",
+      "theme": "Theme",
+      "create": "Create",
+      "import": "Import .terax-theme",
+      "importError": "{{file}}: {{error}}",
+      "failedToRead": "failed to read",
+      "editTheme": "Edit {{name}}",
+      "removeTheme": "Remove {{name}}",
+      "editorTheme": "Editor theme",
+      "editorThemeDesc": "Syntax colors for the code editor. Auto follows the app theme.",
+      "editorThemeAuto": "Auto (match app theme)",
+      "background": "Background",
+      "notAnImage": "{{file}}: not an image",
+      "failedToImportImage": "failed to import image",
+      "replaceImage": "Replace image",
+      "chooseImage": "Choose image",
+      "opacity": "Opacity",
+      "blur": "Blur",
+      "backgroundHint": "Drop an image here or pick one. Stored locally; doesn't affect the default look until set."
     }
   },
   "ai": {
@@ -426,7 +507,11 @@
       "fileExtensions": "File extensions",
       "languageId": "LSP language id",
       "rootMarkers": "Root markers",
-      "addServer": "Add server"
+      "addServer": "Add server",
+      "aria": {
+        "enable": "Enable {{name}} language server",
+        "disable": "Disable {{name}} language server"
+      }
     },
     "editor": {
       "title": "Editor",
@@ -533,6 +618,22 @@
       "emptyDesc": "Run the Terax agent or a coding agent to track it here.",
       "alerts": "Agent alerts",
       "on": "{{count}} on"
+    },
+    "launcher": {
+      "back": "Back to new tab menu",
+      "title": "Launch agents",
+      "subtitle": "One workspace, up to four panes",
+      "instances": "Instances",
+      "instance_one": "{{count}} instance",
+      "instance_other": "{{count}} instances",
+      "startCommand": "Start command",
+      "reset": "Reset",
+      "resetTo": "Reset to {{command}}",
+      "hint": "Aliases and flags are supported.",
+      "launch_one": "Launch {{count}} agent",
+      "launch_other": "Launch {{count}} agents",
+      "instance": "{{count}} instance",
+      "launch": "Launch {{count}} agent"
     }
   },
   "commandPalette": {
@@ -583,7 +684,17 @@
     "startingTitle": "Language server starting",
     "activeTitle": "Language server active",
     "runningStarting": "<1>{{command}}</1> is starting for this workspace.",
-    "runningActive": "<1>{{command}}</1> is running for this workspace."
+    "runningActive": "<1>{{command}}</1> is running for this workspace.",
+    "install": {
+      "title": "Install {{name}} language server",
+      "description": "Terax could not find <1>{{command}}</1> on your PATH. Install it, then check again to enable this language server.",
+      "copyCommand": "Copy install command",
+      "manualHint": "Install this custom server manually and make sure its command is available on PATH.",
+      "stillNotFound": "Still not found. Finish the installation and make sure the command is available on PATH.",
+      "documentation": "Documentation",
+      "checking": "Checking...",
+      "checkAgain": "Check again"
+    }
   },
   "markdown": {
     "failedToRead": "Failed to read file: {{message}}",
@@ -651,7 +762,8 @@
     "mode": "Mode: {{name}}",
     "fewerLanguages": "↑ Fewer languages",
     "allLanguages": "↓ All languages",
-    "renameTab": "Rename tab"
+    "renameTab": "Rename tab",
+    "agents": "Agents"
   },
   "explorer": {
     "noCurrentDir": "No current directory",
@@ -781,7 +893,8 @@
     "files": "Files",
     "binary": "binary",
     "copied": "Copied",
-    "copySha": "Copy SHA"
+    "copySha": "Copy SHA",
+    "filesChanged": "{{count}} file changed"
   },
   "spaces": {
     "title": "Spaces",

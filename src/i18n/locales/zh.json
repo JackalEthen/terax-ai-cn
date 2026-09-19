@@ -26,7 +26,9 @@
     "previous": "上一个",
     "next": "下一个",
     "collapse": "折叠",
-    "expand": "展开"
+    "expand": "展开",
+    "retry": "重试",
+    "searching": "搜索中…"
   },
   "settings": {
     "tabs": {
@@ -87,7 +89,11 @@
       "letterSpacingDesc": "字符之间的额外水平间距(像素)。负值可用于收紧 Nerd Font。",
       "agents": "代理",
       "agentNotifications": "编码代理通知",
-      "agentNotificationsDesc": "当 Claude Code 或 Codex 等在终端中运行的编码代理需要你的输入或完成任务时进行提醒。Terax 未聚焦时使用系统通知,否则使用应用内提示。"
+      "agentNotificationsDesc": "当 Claude Code 或 Codex 等在终端中运行的编码代理需要你的输入或完成任务时进行提醒。Terax 未聚焦时使用系统通知,否则使用应用内提示。",
+      "shellNoTrack": "此 Shell 不支持命令块和目录跟踪。",
+      "shellWsl": "集成终端使用的 Shell。WSL 空间使用发行版的登录 Shell。已打开的标签页保持原有 Shell。",
+      "shellDefault": "新终端标签页使用的 Shell。已打开的标签页保持原有 Shell。",
+      "workspaceEnvDesc": "新空间运行的位置，终端和 AI 代理均适用：Windows 或 WSL 发行版。已有空间保持原有设置；可随时从状态栏切换。"
     },
     "shortcuts": {
       "title": "快捷键",
@@ -194,7 +200,8 @@
       "viewOnGithub": "在 GitHub 查看",
       "reportIssue": "报告问题",
       "localization": "汉化说明",
-      "localizationDesc": "本软件基于 terax-ai（Apache License 2.0）汉化修改。"
+      "localizationDesc": "本软件基于 terax-ai（Apache License 2.0）汉化修改。",
+      "bundleID": "Bundle ID"
     },
     "updater": {
       "upToDate": "已是最新版本",
@@ -216,6 +223,80 @@
       "hideKey": "隐藏密钥",
       "showKey": "显示密钥",
       "remove": "移除密钥"
+    },
+    "lsp": {
+      "languageServers": "语言服务器",
+      "checking": "检测中...",
+      "notOnPath": "未在 PATH 中找到",
+      "detectAgain": "重新检测",
+      "removeServer": "移除服务器",
+      "addCustomServer": "添加自定义服务器",
+      "customLanguageServer": "自定义语言服务器",
+      "name": "名称",
+      "command": "命令",
+      "arguments": "参数",
+      "fileExtensions": "文件扩展名",
+      "languageId": "LSP 语言 ID",
+      "rootMarkers": "根标记",
+      "addServer": "添加服务器",
+      "aria": {
+        "enable": "启用 {{name}} 语言服务器",
+        "disable": "禁用 {{name}} 语言服务器"
+      }
+    },
+    "editor": {
+      "title": "编辑器",
+      "description": "编辑行为、保存与语言服务器。",
+      "appearance": "外观",
+      "fontSize": "字体大小",
+      "fontSizeDesc": "代码编辑器的字号。",
+      "px": "像素",
+      "editing": "编辑",
+      "vimMode": "Vim 模式",
+      "vimModeDesc": "在代码编辑器中启用 Vim 键位。",
+      "wordWrap": "自动换行",
+      "wordWrapDesc": "长行换行显示,避免横向滚动。",
+      "saving": "保存",
+      "autoSave": "自动保存",
+      "autoSaveDesc": "检测到更改后延迟自动保存文件。",
+      "autoSaveDelay": "自动保存延迟",
+      "autoSaveDelayDesc": "未保存的更改在自动保存前的延迟时间。",
+      "ms": "毫秒",
+      "formatOnSave": "保存时格式化",
+      "formatOnSaveDesc": "通过下方选择的格式化器在显式保存(Cmd+S / :w)时格式化文件。",
+      "formatter": "格式化器",
+      "formatterDesc": "语言服务器在写入前格式化缓冲区;外部工具在保存后对文件运行。",
+      "formatterLsp": "语言服务器",
+      "formatterCustom": "自定义命令",
+      "customCommand": "自定义命令",
+      "customCommandDesc": "对已保存的文件运行;{{file}} 会被替换为带引号的路径(省略时附加在末尾)。",
+      "customCommandPlaceholder": "mytool --fix {{file}}",
+      "languageOverrides": "语言覆写",
+      "languageOverridesDesc": "为指定语言使用不同的格式化器(例如 Python 使用 Ruff)。",
+      "addOverride": "添加覆写",
+      "removeOverride": "移除覆写"
+    },
+    "themes": {
+      "title": "主题",
+      "description": "主题、背景图片与自定义。",
+      "theme": "主题",
+      "create": "新建",
+      "import": "导入 .terax-theme",
+      "importError": "{{file}}: {{error}}",
+      "failedToRead": "读取失败",
+      "editTheme": "编辑 {{name}}",
+      "removeTheme": "移除 {{name}}",
+      "editorTheme": "编辑器主题",
+      "editorThemeDesc": "代码编辑器的语法配色,自动跟随应用主题。",
+      "editorThemeAuto": "自动(跟随应用主题)",
+      "background": "背景",
+      "notAnImage": "{{file}}: 不是图片",
+      "failedToImportImage": "导入图片失败",
+      "replaceImage": "替换图片",
+      "chooseImage": "选择图片",
+      "opacity": "不透明度",
+      "blur": "模糊",
+      "backgroundHint": "拖拽图片到此处或选择一张。本地存储,在设置前不影响默认外观。"
     }
   },
   "ai": {
@@ -426,7 +507,11 @@
       "fileExtensions": "文件扩展名",
       "languageId": "LSP 语言 ID",
       "rootMarkers": "根标记",
-      "addServer": "添加服务器"
+      "addServer": "添加服务器",
+      "aria": {
+        "enable": "启用 {{name}} 语言服务器",
+        "disable": "禁用 {{name}} 语言服务器"
+      }
     },
     "editor": {
       "title": "编辑器",
@@ -529,6 +614,22 @@
       "emptyDesc": "运行 Terax 代理或编程代理即可在此追踪。",
       "alerts": "代理提醒",
       "on": "{{count}} 个开启"
+    },
+    "launcher": {
+      "back": "返回新建标签菜单",
+      "title": "启动代理",
+      "subtitle": "一个工作区，最多四个窗格",
+      "instances": "实例数",
+      "instance_one": "{{count}} 个实例",
+      "instance_other": "{{count}} 个实例",
+      "startCommand": "启动命令",
+      "reset": "重置",
+      "resetTo": "重置为 {{command}}",
+      "hint": "支持别名和参数。",
+      "launch_one": "启动 {{count}} 个代理",
+      "launch_other": "启动 {{count}} 个代理",
+      "instance": "{{count}} 个实例",
+      "launch": "启动 {{count}} 个代理"
     }
   },
   "commandPalette": {
@@ -579,7 +680,17 @@
     "startingTitle": "语言服务器启动中",
     "activeTitle": "语言服务器已激活",
     "runningStarting": "<1>{{command}}</1> 正在为此工作区启动。",
-    "runningActive": "<1>{{command}}</1> 正在为此工作区运行。"
+    "runningActive": "<1>{{command}}</1> 正在为此工作区运行。",
+    "install": {
+      "title": "安装 {{name}} 语言服务器",
+      "description": "Terax 未能在你的 PATH 中找到 <1>{{command}}</1>。请先安装，然后重新检查以启用该语言服务器。",
+      "copyCommand": "复制安装命令",
+      "manualHint": "请手动安装此自定义服务器，并确保其命令在 PATH 中可用。",
+      "stillNotFound": "仍未找到。请完成安装并确保命令在 PATH 中可用。",
+      "documentation": "文档",
+      "checking": "检查中...",
+      "checkAgain": "再次检查"
+    }
   },
   "markdown": {
     "failedToRead": "读取文件失败：{{message}}",
@@ -647,7 +758,8 @@
     "mode": "模式:{{name}}",
     "fewerLanguages": "↑ 收起语言",
     "allLanguages": "↓ 全部语言",
-    "renameTab": "重命名标签"
+    "renameTab": "重命名标签",
+    "agents": "代理"
   },
   "explorer": {
     "noCurrentDir": "没有当前目录",
@@ -777,7 +889,8 @@
     "files": "文件",
     "binary": "二进制",
     "copied": "已复制",
-    "copySha": "复制 SHA"
+    "copySha": "复制 SHA",
+    "filesChanged": "更改了 {{count}} 个文件"
   },
   "spaces": {
     "title": "空间",
