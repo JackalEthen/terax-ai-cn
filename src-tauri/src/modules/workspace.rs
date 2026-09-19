@@ -879,8 +879,17 @@ mod auth_tests {
         let link = allowed.join("escape");
         #[cfg(unix)]
         std::os::unix::fs::symlink(&outside, &link).expect("symlink");
+        // Windows needs Developer Mode (SeCreateSymbolicLinkPrivilege) for
+        // dir symlinks; skip rather than fail CI runners without the right.
         #[cfg(windows)]
-        std::os::windows::fs::symlink_dir(&outside, &link).expect("symlink");
+        match std::os::windows::fs::symlink_dir(&outside, &link) {
+            Ok(()) => {}
+            Err(e) if e.raw_os_error() == Some(1314) => {
+                eprintln!("skipping: no symlink privilege on this host");
+                return;
+            }
+            Err(e) => panic!("symlink: {e}"),
+        }
         let reg = WorkspaceRegistry::default();
         reg.authorize(&allowed).expect("authorize root");
         let s = link.to_string_lossy().into_owned();
