@@ -104,7 +104,10 @@ export function AiComposerInput() {
     const q = trigger.query;
     const cmdItems: PickerItem[] = Object.values(SLASH_COMMANDS)
       .filter(
-        (c) => !q || c.name.includes(q) || c.label.toLowerCase().includes(q),
+        (c) =>
+          !q ||
+          c.name.includes(q) ||
+          t(c.labelKey, c.label).toLowerCase().includes(q),
       )
       .map((command) => ({ kind: "command", command }));
     if (trigger.char === "/") return cmdItems;
@@ -118,7 +121,7 @@ export function AiComposerInput() {
       )
       .map((snippet) => ({ kind: "snippet", snippet }));
     return [...cmdItems, ...snipItems];
-  }, [trigger, snippets]);
+  }, [trigger, snippets, t]);
 
   const FILE_PICKER_CAP = 30;
   const filteredFiles = useMemo<string[]>(() => {

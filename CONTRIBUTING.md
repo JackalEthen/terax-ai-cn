@@ -20,7 +20,7 @@ pnpm install
 pnpm tauri dev
 ```
 
-Prereqs: Rust (stable), Node 20+, pnpm, plus your platform's [Tauri prerequisites](https://tauri.app/start/prerequisites/).
+Prereqs: Rust (stable), Node 22+, pnpm, plus your platform's [Tauri prerequisites](https://tauri.app/start/prerequisites/).
 
 For the architecture and how to contribute safely, see [TERAX.md](TERAX.md) and the [docs/ index](docs/README.md).
 
@@ -110,8 +110,8 @@ UI rendering, themes, syntax-highlight tables, and anything the type-checker alr
 
 To set expectations:
 
-- Terax is not trying to be a full IDE replacement (VS Code, Cursor, Zed).
-- Not building: full LSP support, Jupyter notebooks, integrated debugger UI, package manager UI, full web browser.
+- Terax is terminal-first, not an IDE clone. Focused capabilities such as LSP, AI autocomplete, formatting, source control, and previews belong when they stay fast, lazy, and resource-bounded.
+- Not building: Jupyter-style workspaces, integrated debugger and profiler suites, package manager UIs, a full web browser, unbounded background indexing, or an IDE-scale extension host.
 - This is not a curated "first open-source contribution" project. Beginners are welcome but expect normal review.
 - Mechanical refactors, broad style changes, drive-by rewrites are not helpful.
 - AI-assisted contributions are welcome, but the PR must reflect understanding of the existing patterns. Low-effort AI-generated code that wasn't read by the author will be closed.

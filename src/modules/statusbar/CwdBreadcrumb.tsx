@@ -259,6 +259,7 @@ function CollapsedSegments({
   segments: { fullPath: string; label: string; isHome: boolean }[];
   onCd: (p: string) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <span className="contents md:hidden">
       <BreadcrumbItem>
@@ -266,7 +267,7 @@ function CollapsedSegments({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              title="Show hidden folders"
+              title={t("statusbar.showHiddenFolders")}
               className="flex items-center rounded-sm px-1 text-muted-foreground hover:bg-accent hover:text-foreground"
             >
               <HugeiconsIcon

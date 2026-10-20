@@ -31,6 +31,7 @@ import {
   getProvider,
   isCompatModelId,
   MODELS,
+  modelDescriptionKey,
   type ModelId,
   PROVIDERS,
   type ProviderId,
@@ -89,7 +90,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { invoke } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { ProviderIcon } from "../components/ProviderIcon";
 import { ProviderKeyCard } from "../components/ProviderKeyCard";
 import { SectionHeader } from "../components/SectionHeader";
@@ -103,6 +104,7 @@ type LocalMeta = {
   modelPlaceholder: string;
   description: string;
   modelHint: React.ReactNode;
+  modelHintKey?: string;
 };
 
 const LOCAL_META: Partial<Record<ProviderId, LocalMeta>> = {
@@ -111,6 +113,7 @@ const LOCAL_META: Partial<Record<ProviderId, LocalMeta>> = {
     modelPlaceholder: "qwen2.5-coder-7b-instruct",
     description:
       "Run GGUF models via LM Studio's HTTP server (Developer tab → enable).",
+    modelHintKey: "settings.models.providers.lmstudio.modelHint",
     modelHint: (
       <>
         The model id loaded in LM Studio — see the server's{" "}
@@ -123,12 +126,14 @@ const LOCAL_META: Partial<Record<ProviderId, LocalMeta>> = {
     modelPlaceholder: "mlx-community/Qwen2.5-Coder-7B-Instruct-4bit",
     description:
       "Apple-silicon inference via mlx_lm.server (pip install mlx-lm).",
+    modelHintKey: "settings.models.providers.mlx.modelHint",
     modelHint: <>The Hugging Face repo path you launched mlx_lm.server with.</>,
   },
   ollama: {
     urlPlaceholder: "http://localhost:11434/v1",
     modelPlaceholder: "qwen2.5-coder:7b",
     description: "Local models via Ollama's built-in OpenAI-compatible API.",
+    modelHintKey: "settings.models.providers.ollama.modelHint",
     modelHint: <>The model name from `ollama list` / `ollama pull`.</>,
   },
   "openai-compatible": {
@@ -141,6 +146,7 @@ const LOCAL_META: Partial<Record<ProviderId, LocalMeta>> = {
     urlPlaceholder: "",
     modelPlaceholder: "anthropic/claude-sonnet-5, openai/gpt-5.6, …",
     description: "Any model on OpenRouter — type its full provider/model id.",
+    modelHintKey: "settings.models.providers.openrouter.modelHint",
     modelHint: (
       <>
         Browse ids at <span className="font-mono">openrouter.ai/models</span>.
@@ -568,6 +574,7 @@ function DefaultModelPicker({
   defaultModel: ModelId;
   configuredIds: Set<ProviderId>;
 }) {
+  const { t } = useTranslation();
   const m = getModel(defaultModel);
   const hasAny = configuredIds.size > 0;
 
@@ -621,7 +628,7 @@ function DefaultModelPicker({
                     <span className="flex flex-1 flex-col">
                       <span>{mod.label}</span>
                       <span className="text-[10px] text-muted-foreground">
-                        {mod.description}
+                        {t(modelDescriptionKey(mod.id), mod.description)}
                       </span>
                     </span>
                   </DropdownMenuItem>
@@ -781,7 +788,7 @@ function AutocompleteRow({
                         <span className="flex flex-col">
                           <span>{m.label}</span>
                           <span className="text-[10px] text-muted-foreground">
-                            {m.description}
+                            {t(modelDescriptionKey(m.id), m.description)}
                           </span>
                         </span>
                       </DropdownMenuItem>
@@ -918,7 +925,7 @@ function LocalProviderCard({
       </div>
 
       <span className="text-[10.5px] leading-relaxed text-muted-foreground">
-        {meta.description}
+        {t(`settings.models.providers.${provider.id}.description`, meta.description)}
       </span>
 
       <div className="mt-0.5 flex flex-col gap-2.5">
@@ -1038,7 +1045,11 @@ function LocalProviderCard({
 
         {!modelId.trim() && meta.modelHint ? (
           <p className="text-[10.5px] leading-relaxed text-muted-foreground">
-            {meta.modelHint}
+            {meta.modelHintKey ? (
+              <Trans i18nKey={meta.modelHintKey}>{meta.modelHint}</Trans>
+            ) : (
+              meta.modelHint
+            )}
           </p>
         ) : null}
       </div>

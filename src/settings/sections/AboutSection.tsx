@@ -26,12 +26,9 @@ export function AboutSection() {
   const [version, setVersion] = useState("");
   const [name, setName] = useState("Terax");
   const [build, setBuild] = useState("");
-  const { status, check, install } = useUpdater({ autoCheck: false });
+  const { status, check } = useUpdater({ autoCheck: false });
   const checking = status.kind === "checking";
-  const downloading = status.kind === "downloading";
-  const available = status.kind === "available";
-  const manualAvailable = status.kind === "manual-available";
-  const ready = status.kind === "ready";
+  const available = status.kind === "manual-available";
   const checkLabel =
     status.kind === "uptodate"
       ? t("settings.updater.upToDate")
@@ -39,18 +36,11 @@ export function AboutSection() {
         ? t("settings.updater.checkFailed")
         : checking
           ? t("settings.updater.checking")
-          : downloading
-            ? t("settings.updater.downloading")
-            : ready
-              ? t("settings.updater.restartToInstall")
-              : available
-                ? t("settings.updater.installVersion", { version: status.update.version })
-                : manualAvailable
-                  ? t("settings.updater.updateTo", { version: status.info.version })
-                  : t("settings.updater.checkForUpdates");
+          : available
+            ? t("settings.updater.updateTo", { version: status.info.version })
+            : t("settings.updater.checkForUpdates");
   const onUpdateClick = () => {
-    if (available) void install();
-    else void check({ manual: true });
+    void check({ manual: true });
   };
 
   useEffect(() => {
@@ -132,7 +122,7 @@ export function AboutSection() {
           <Button
             size="sm"
             onClick={onUpdateClick}
-            disabled={checking || downloading || ready}
+            disabled={checking}
           >
             {checkLabel}
           </Button>
@@ -158,15 +148,6 @@ export function AboutSection() {
             {status.message}
           </p>
         )}
-        {downloading && status.contentLength ? (
-          <p className="text-[11px] text-muted-foreground">
-            {Math.min(
-              100,
-              Math.round((status.downloaded / status.contentLength) * 100),
-            )}
-            %
-          </p>
-        ) : null}
       </div>
     </div>
   );

@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -32,33 +31,15 @@ const DISTROS: { key: DistroKey; label: string }[] = [
   { key: "fedora", label: "Fedora / RHEL" },
 ];
 
-function formatBytes(n: number): string {
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
-}
-
 export function UpdaterDialog() {
   const { t } = useTranslation();
-  const { status, install, dismiss } = useUpdater();
+  const { status, dismiss } = useUpdater();
   const [copied, setCopied] = useState(false);
   const [distro, setDistro] = useState<DistroKey>("arch");
-  const manualVersion =
-    status.kind === "manual-available" ? status.info.version : "";
-  const activeCommand = distroCommand(distro, manualVersion);
-
-  const open =
-    status.kind === "available" ||
-    status.kind === "manual-available" ||
-    status.kind === "downloading" ||
-    status.kind === "ready";
-
-  if (!open) return null;
-
-  const update = status.kind === "available" ? status.update : null;
   const manual = status.kind === "manual-available" ? status.info : null;
-  const downloading = status.kind === "downloading";
-  const ready = status.kind === "ready";
+  const activeCommand = distroCommand(distro, manual?.version ?? "");
+
+  if (!manual) return null;
 
   const copyCommand = async () => {
     if (!navigator?.clipboard?.writeText) return;
@@ -70,109 +51,61 @@ export function UpdaterDialog() {
       // ignore
     }
   };
-  const progress =
-    downloading && status.contentLength
-      ? Math.min(100, (status.downloaded / status.contentLength) * 100)
-      : null;
 
   return (
     <Dialog
-      open={open}
+      open
       onOpenChange={(o) => {
-        if (
-          !o &&
-          (status.kind === "available" || status.kind === "manual-available")
-        )
-          dismiss();
+        if (!o) dismiss();
       }}
     >
       <DialogContent className="sm:max-w-[440px]">
         <DialogHeader>
           <DialogTitle>
-            {ready
-              ? t('updater.updateReady')
-              : downloading
-                ? t('updater.downloading')
-                : manual
-                  ? t('updater.versionAvailable', { version: manual.version })
-                  : t('updater.versionAvailable', { version: update?.version })}
+            {t("updater.versionAvailable", { version: manual.version })}
           </DialogTitle>
           <DialogDescription>
-            {ready
-              ? t('updater.restartToInstall')
-              : downloading
-                ? progress !== null
-                  ? `${progress.toFixed(0)}% — ${formatBytes(status.downloaded)}`
-                  : formatBytes(status.downloaded)
-                : manual
-                  ? t('updater.pickDistro', { currentVersion: manual.currentVersion })
-                  : update?.body || t('updater.newVersionReady')}
+            {t("updater.pickDistro", { currentVersion: manual.currentVersion })}
           </DialogDescription>
         </DialogHeader>
 
-        {downloading && progress !== null && (
-          <Progress value={progress} className="mt-2" />
-        )}
-        {downloading && progress === null && (
-          <Progress value={undefined} className="mt-2 animate-pulse" />
-        )}
-
-        {manual && (
-          <div className="mt-2 flex flex-col gap-2">
-            <div className="flex gap-1 rounded-md bg-muted/40 p-1">
-              {DISTROS.map((d) => (
-                <button
-                  key={d.key}
-                  type="button"
-                  onClick={() => setDistro(d.key)}
-                  className={`flex-1 rounded px-2 py-1 text-[11px] transition-colors ${
-                    distro === d.key
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {d.label}
-                </button>
-              ))}
-            </div>
-            <div className="flex items-center gap-2 rounded-md border border-border/60 bg-muted/40 px-3 py-2 font-mono text-[12px]">
-              <span className="flex-1 select-all">$ {activeCommand}</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 px-2 text-[11px]"
-                onClick={() => void copyCommand()}
+        <div className="mt-2 flex flex-col gap-2">
+          <div className="flex gap-1 rounded-md bg-muted/40 p-1">
+            {DISTROS.map((d) => (
+              <button
+                key={d.key}
+                type="button"
+                onClick={() => setDistro(d.key)}
+                className={`flex-1 rounded px-2 py-1 text-[11px] transition-colors ${
+                  distro === d.key
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
-                {copied ? t('updater.copied') : t('updater.copy')}
-              </Button>
-            </div>
+                {d.label}
+              </button>
+            ))}
           </div>
-        )}
+          <div className="flex items-center gap-2 rounded-md border border-border/60 bg-muted/40 px-3 py-2 font-mono text-[12px]">
+            <span className="flex-1 select-all">$ {activeCommand}</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-[11px]"
+              onClick={() => void copyCommand()}
+            >
+              {copied ? t("updater.copied") : t("updater.copy")}
+            </Button>
+          </div>
+        </div>
 
         <DialogFooter>
-          {status.kind === "available" && (
-            <>
-              <Button variant="ghost" size="sm" onClick={dismiss}>
-                {t('updater.later')}
-              </Button>
-              <Button size="sm" onClick={() => void install()}>
-                {t('updater.installRestart')}
-              </Button>
-            </>
-          )}
-          {manual && (
-            <>
-              <Button variant="ghost" size="sm" onClick={dismiss}>
-                {t('updater.later')}
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => void openUrl(manual.releaseUrl)}
-              >
-                {t('updater.downloadPackage')}
-              </Button>
-            </>
-          )}
+          <Button variant="ghost" size="sm" onClick={dismiss}>
+            {t("updater.later")}
+          </Button>
+          <Button size="sm" onClick={() => void openUrl(manual.releaseUrl)}>
+            {t("updater.downloadPackage")}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

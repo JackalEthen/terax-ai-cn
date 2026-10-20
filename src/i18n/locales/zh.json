@@ -28,7 +28,9 @@
     "collapse": "折叠",
     "expand": "展开",
     "retry": "重试",
-    "searching": "搜索中…"
+    "searching": "搜索中…",
+    "checking": "检查中…",
+    "overwrite": "覆盖"
   },
   "settings": {
     "tabs": {
@@ -93,7 +95,39 @@
       "shellNoTrack": "此 Shell 不支持命令块和目录跟踪。",
       "shellWsl": "集成终端使用的 Shell。WSL 空间使用发行版的登录 Shell。已打开的标签页保持原有 Shell。",
       "shellDefault": "新终端标签页使用的 Shell。已打开的标签页保持原有 Shell。",
-      "workspaceEnvDesc": "新空间运行的位置，终端和 AI 代理均适用：Windows 或 WSL 发行版。已有空间保持原有设置；可随时从状态栏切换。"
+      "workspaceEnvDesc": "新空间运行的位置，终端和 AI 代理均适用：Windows 或 WSL 发行版。已有空间保持原有设置；可随时从状态栏切换。",
+      "terminalRenderer": "终端渲染器",
+      "terminalRendererDesc": "「自动」优先使用 WebGPU，失败时回退到 WebGL。图形兼容性有问题时可手动选择 WebGL。仅对新终端生效。",
+      "terminalRendererAuto": "自动",
+      "screenReader": "屏幕阅读器支持",
+      "screenReaderDesc": "将终端输出暴露为可访问文本。聚焦输出区域时可用 Page Up / Page Down 浏览历史。",
+      "notificationSound": "通知提示音",
+      "notificationSoundDesc": "在代理通知和应用内提醒时播放提示音。",
+      "cursorStyle": "光标样式",
+      "cursorStyleDesc": "终端光标的形状。",
+      "cursorBar": "竖线",
+      "cursorBlock": "方块",
+      "cursorUnderline": "下划线",
+      "fontWeightNormal": "常规",
+      "fontWeightMedium": "中等",
+      "fontWeightSemiBold": "半粗",
+      "fontWeightBold": "粗体",
+      "lineCount": "{{count}} 行",
+      "confirmClose": "终止运行中的进程前先确认",
+      "confirmCloseDesc": "在命令仍在运行时关闭终端标签页或退出应用前先询问。编辑器中未保存的更改始终会确认。",
+      "notifyTest": {
+        "switchApps": "切换应用…",
+        "sending": "发送中…",
+        "requested": "已请求",
+        "blocked": "已阻止",
+        "failed": "失败",
+        "testIn2s": "2 秒后测试",
+        "titleWaiting": "切换到其他应用以验证系统通知是否送达",
+        "titleRequested": "已请求系统通知",
+        "titleBlocked": "系统已禁用通知",
+        "titleFailed": "Terax 无法请求系统通知",
+        "titleIdle": "两秒后发送一条测试用的系统通知"
+      }
     },
     "shortcuts": {
       "title": "快捷键",
@@ -156,7 +190,28 @@
       "provider": "提供商",
       "sttOpenaiDesc": "使用你的官方 OpenAI API 密钥和 Whisper 模型进行转录。",
       "sttGroqDesc": "使用你的官方 Groq API 密钥和 Groq 的 Whisper 端点进行转录。",
-      "sttWhispercppDesc": "连接本地 Whisper.cpp 服务器以实现完全离线转录。"
+      "sttWhispercppDesc": "连接本地 Whisper.cpp 服务器以实现完全离线转录。",
+      "providers": {
+        "lmstudio": {
+          "description": "通过 LM Studio 的 HTTP 服务运行 GGUF 模型（Developer 标签页 → 启用）。",
+          "modelHint": "在 LM Studio 中加载的模型 id —— 见服务端的 <1>/v1/models</1> 页面。"
+        },
+        "mlx": {
+          "description": "通过 mlx_lm.server 在 Apple 芯片上推理（pip install mlx-lm）。",
+          "modelHint": "你启动 mlx_lm.server 时使用的 Hugging Face 仓库路径。"
+        },
+        "ollama": {
+          "description": "通过 Ollama 内置的 OpenAI 兼容 API 运行本地模型。",
+          "modelHint": "来自 `ollama list` / `ollama pull` 的模型名称。"
+        },
+        "openai-compatible": {
+          "description": "任意 OpenAI 兼容端点 —— vLLM、Z.AI、Fireworks 等。"
+        },
+        "openrouter": {
+          "description": "OpenRouter 上的任意模型 —— 填写完整的 提供商/模型 id。",
+          "modelHint": "在 <1>openrouter.ai/models</1> 浏览模型 id。"
+        }
+      }
     },
     "agents": {
       "title": "代理",
@@ -467,7 +522,9 @@
       "new": "新建",
       "createDir": "创建目录",
       "noLineChanges": "无行级更改",
-      "moreChanges": "… 还有 {{count}} 处更改"
+      "moreChanges": "… 还有 {{count}} 处更改",
+      "toggleDiff": "切换差异视图",
+      "reject": "拒绝"
     },
     "todoStrip": {
       "todos": "待办"
@@ -488,7 +545,9 @@
       "initWorkspace": "初始化工作区",
       "planMode": "计划模式",
       "planModeOff": "计划模式已关闭",
-      "planModeOn": "计划模式已开启"
+      "planModeOn": "计划模式已开启",
+      "delegateToClaudeCode": "交给 Claude Code 执行",
+      "usageClaudeCode": "用法：/claude-code <请求内容>"
     },
     "sessions": {
       "newChat": "新对话"
@@ -564,6 +623,78 @@
       "opacity": "不透明度",
       "blur": "模糊",
       "backgroundHint": "拖拽图片到此处或选择一张。本地存储,在设置前不影响默认外观。"
+    },
+    "voice": {
+      "micFailed": "麦克风访问失败"
+    },
+    "modelDescriptions": {
+      "gpt-5-6": "面向复杂专业任务与代理场景的旗舰模型。",
+      "gpt-5-6-terra": "智能依旧强劲，成本与延迟更低。",
+      "gpt-5-6-luna": "快速经济的推理模型，适合高吞吐任务。",
+      "gpt-5-5": "旗舰级推理与编码能力。",
+      "gpt-5-5-pro": "面向最困难专业与代理任务的最高精度版本。",
+      "gpt-5-4-mini": "低成本下的敏捷默认选择。",
+      "gpt-5-4-nano": "轻量极速 —— 适合自动补全。",
+      "gpt-5-3-codex": "针对代码与工具调用优化。",
+      "gpt-4-1-mini": "超低成本主力模型，适合批量任务。",
+      "claude-fable-5": "能力最强的 Claude，胜任高难度推理与长周期代理工作。",
+      "claude-sonnet-5": "Claude 智能与速度的最佳组合。",
+      "claude-opus-4-8": "Anthropic 最强模型，适合复杂推理与长周期代理编码。",
+      "claude-opus-4-7": "上一代旗舰，擅长长链推理。",
+      "claude-sonnet-4-6": "质量与速度的平衡点。",
+      "claude-haiku-4-5": "快速、廉价、多模态。",
+      "claude-opus-4-6": "上一代 Opus。",
+      "gemini-3-5-flash": "高智能、极快的多模态模型。",
+      "gemini-3-1-flash-lite": "极快、廉价、轻量的多模态模型。",
+      "gemini-3-1-pro-preview": "强推理能力，1M 上下文。",
+      "gemini-3-flash-preview": "快速多模态，1M 上下文。",
+      "gemini-2-5-pro": "生产环境稳定的 Gemini。",
+      "gemini-2-5-flash": "低成本大吞吐。",
+      "grok-4-5": "面向编码、代理与知识工作的旗舰模型。",
+      "grok-4-20-reasoning": "支持延长思考的旗舰推理模型。",
+      "grok-4-20-non-reasoning": "面向对话与工具调用的快速档。",
+      "grok-4-fast-reasoning": "更便宜的 Grok 4，支持视觉与推理。",
+      "grok-4-3": "最智能也最快的 Grok。工具调用能力强，1M 上下文。",
+      "grok-build-0-1": "面向代理工作流的专用快速编码模型（Grok Build CLI 的引擎）。",
+      "deepseek-v4-pro": "强力的开放权重代码模型。",
+      "deepseek-v4-flash": "廉价快速的日常档。",
+      "deepseek-reasoner": "开放权重价格下的思维链推理。",
+      "mistral-large-latest": "Mistral 旗舰模型，128K 上下文。",
+      "mistral-medium-latest": "速度与智能的平衡之选。",
+      "codestral-latest": "Mistral 专为编码打造的模型。",
+      "gpt-oss-120b": "Cerebras 芯片上的最快推理。",
+      "llama3-3-70b": "Meta 开放模型，运行于晶圆级芯片。",
+      "qwen-3-32b": "极速多语言模型。",
+      "openai/gpt-oss-20b": "Groq LPU 上的亚秒级响应。",
+      "llama-3-3-70b-versatile": "快速且能力全面。",
+      "deepseek-r1-distill-llama-70b": "Groq 上的推理蒸馏 Llama。",
+      "openrouter-custom": "通过 id 调用 OpenRouter 上的任意模型。",
+      "openai-compatible-custom": "任意 OpenAI 兼容端点。",
+      "lmstudio-local": "通过 LM Studio 运行本地 GGUF 模型。",
+      "mlx-local": "通过 mlx_lm.server 运行 Apple 芯片模型。",
+      "ollama-local": "通过 Ollama 运行本地模型。"
+    },
+    "builtinAgents": {
+      "coder": {
+        "name": "编码助手",
+        "description": "通用编码助手。会写代码、改代码并运行命令。"
+      },
+      "architect": {
+        "name": "架构师",
+        "description": "关注设计与取舍。先规划再写代码。"
+      },
+      "reviewer": {
+        "name": "代码审查",
+        "description": "审查 diff 的正确性、性能与安全。"
+      },
+      "security": {
+        "name": "安全",
+        "description": "对改动做威胁建模并标记漏洞。"
+      },
+      "designer": {
+        "name": "设计师",
+        "description": "UI/UX 评点与打磨。"
+      }
     }
   },
   "header": {
@@ -660,6 +791,43 @@
       "Search": "搜索",
       "View": "视图",
       "AI": "AI"
+    },
+    "commands": {
+      "openSettings": "打开设置",
+      "changeTheme": "更换主题…",
+      "keyboardShortcuts": "键盘快捷键",
+      "spacesOverview": "空间：总览",
+      "newSpace": "新建空间",
+      "switchSpace": "切换到 {{name}}",
+      "newTerminal": "新建终端",
+      "newBlockTerminal": "新建块终端",
+      "newPrivateTerminal": "新建隐私终端",
+      "newEditorTab": "新建编辑器标签",
+      "newWebPreview": "新建网页预览",
+      "closeTabOrPane": "关闭标签或窗格",
+      "splitRight": "向右拆分窗格",
+      "splitDown": "向下拆分窗格",
+      "openGitGraph": "打开 Git 图谱",
+      "toggleSourceControl": "切换源码管理",
+      "findContentInFiles": "在文件中查找内容",
+      "searchCommandHistory": "搜索命令历史",
+      "findInCurrentTab": "在当前标签中查找",
+      "searchFilesByName": "按名称搜索文件",
+      "toggleFileExplorer": "切换文件资源管理器",
+      "toggleHiddenFiles": "切换隐藏文件",
+      "toggleAiAgent": "切换 AI 代理",
+      "askAiSelection": "就选区询问 AI"
+    },
+    "disabled": {
+      "noTerminalTab": "无终端标签",
+      "paneLimit": "已达窗格上限",
+      "lastTab": "最后一个标签",
+      "noSearchableView": "无可搜索视图",
+      "currentSpace": "当前空间"
+    },
+    "modeHints": {
+      "history": "搜索命令历史",
+      "content": "在文件中查找文本"
     }
   },
   "lsp": {
@@ -715,7 +883,8 @@
     "shellInput": {
       "runCommand": "运行命令",
       "history": "历史",
-      "switchAi": "切换到 AI"
+      "switchAi": "切换到 AI",
+      "typeDirectly": "直接在终端中输入"
     },
     "overlay": {
       "exit": "退出码 {{code}}",
@@ -728,8 +897,20 @@
       "copyCommandAndOutput": "复制命令和输出",
       "blockCopied": "块已复制",
       "attachToAi": "附加到 AI 聊天",
-      "findInBlock": "在块中查找"
-    }
+      "findInBlock": "在块中查找",
+      "searchFailed": "无法在此区块内搜索"
+    },
+    "accessibleOutput": "终端输出。按 Page Up / Page Down 浏览历史。",
+    "dropFileHere": "将文件路径拖放到此处",
+    "error": {
+      "rendererTitle": "无法显示终端",
+      "startTitle": "无法启动终端",
+      "sessionPreserved": "终端会话已保留，重试即可恢复显示。",
+      "retryDisplay": "重试显示"
+    },
+    "outputPaused": "终端输出已暂停",
+    "outputFailedDesc": "终端无法处理输出，请重新打开该终端以恢复。",
+    "outputStalledDesc": "正在等待终端连接，恢复后将自动继续推送输出。"
   },
   "statusbar": {
     "private": "隐私：对 AI 隐藏",
@@ -741,7 +922,8 @@
     "wslUnavailable": "WSL 不可用",
     "noWslDistros": "未找到 WSL 发行版",
     "refresh": "刷新",
-    "noDirectory": "无目录"
+    "noDirectory": "无目录",
+    "showHiddenFolders": "显示隐藏文件夹"
   },
   "tabs": {
     "unsavedChanges": "未保存的更改",
@@ -759,7 +941,9 @@
     "fewerLanguages": "↑ 收起语言",
     "allLanguages": "↓ 全部语言",
     "renameTab": "重命名标签",
-    "agents": "代理"
+    "agents": "代理",
+    "closeTabsToRight": "关闭右侧标签页",
+    "closeOtherTabs": "关闭其他标签页"
   },
   "explorer": {
     "noCurrentDir": "没有当前目录",
@@ -782,7 +966,13 @@
     "searching": "搜索中…",
     "noMatches": "无匹配",
     "partialResults": "显示部分结果 — 请缩小查询范围。",
-    "open": "打开"
+    "open": "打开",
+    "openInSourceControl": "在源码管理中打开",
+    "openGitHistory": "打开 Git 历史",
+    "deleteFailed": "一个或多个项目删除失败",
+    "closeDestinationFirst": "替换前请先关闭目标文件",
+    "moveFailedSome": "部分项目无法移动",
+    "moveFailed": "移动失败"
   },
   "preview": {
     "enterUrl": "请输入 URL 或选择端口预设。",
@@ -796,7 +986,11 @@
     "embedWarning": "许多公共网站拒绝嵌入（X-Frame-Options）。如果页面为空，请在外部打开。",
     "suspended": "预览已暂停",
     "suspendedDesc": "在后台闲置后释放以节省内存。",
-    "nothingToPreview": "暂无内容可预览"
+    "nothingToPreview": "暂无内容可预览",
+    "cookieNotice": "基于 Cookie 的登录在预览中可能不可用。",
+    "cookieNoticeTitle": "基于 Cookie 的登录在沙箱预览中可能不可用。",
+    "dismissCookieNotice": "关闭 Cookie 登录提示",
+    "emptyHint": "在上方输入网址，或打开「端口」下拉框直接跳到正在运行的开发服务器。许多公开网站会阻止嵌入；若页面空白，请点击链接图标在浏览器中打开。"
   },
   "shortcutsDialog": {
     "title": "键盘快捷键",
@@ -834,7 +1028,22 @@
     "closeTerminalTitle": "关闭终端？",
     "closeTerminalDesc": "有进程正在运行。关闭此标签页将终止它。",
     "quitTitle": "退出 Terax？",
-    "quitAnyway": "仍然退出"
+    "quitAnyway": "仍然退出",
+    "optOutRunningProcesses": "不再询问运行中的进程",
+    "closeManyDirtyTitle": "「{{title}}」有未保存的更改，仍要关闭吗？",
+    "closeManyDirtySingle": "有 1 个标签页包含未保存的更改，仍要关闭吗？",
+    "closeManyDirtyCount_one": "有 1 个标签页包含未保存的更改",
+    "closeManyDirtyCount_other": "有 {{count}} 个标签页包含未保存的更改",
+    "closeManyBusyCount_one": "1 个进程正在运行",
+    "closeManyBusyCount_other": "{{count}} 个进程正在运行",
+    "closeManyDirtyAndBusy_one": "{{dirty}}，且{{busy}}。关闭将丢弃这些更改并终止该进程，仍要关闭吗？",
+    "closeManyDirtyAndBusy_other": "{{dirty}}，且{{busy}}。关闭将丢弃这些更改并终止这些进程，仍要关闭吗？",
+    "closeManyDirty_one": "有 1 个标签页包含未保存的更改，关闭将丢弃这些更改，仍要关闭吗？",
+    "closeManyDirty_other": "有 {{count}} 个标签页包含未保存的更改，关闭将丢弃这些更改，仍要关闭吗？",
+    "closeManyBusyRight_one": "右侧标签页中有进程正在运行，关闭将终止该进程，仍要关闭吗？",
+    "closeManyBusyRight_other": "右侧标签页中有 {{count}} 个进程正在运行，关闭将终止这些进程，仍要关闭吗？",
+    "closeManyBusy_one": "其他标签页中有进程正在运行，关闭将终止该进程，仍要关闭吗？",
+    "closeManyBusy_other": "其他标签页中有 {{count}} 个进程正在运行，关闭将终止这些进程，仍要关闭吗？"
   },
   "window": {
     "minimize": "最小化",
@@ -861,6 +1070,26 @@
       "largeFileBadge": "大文件 / 补丁视图",
       "loading": "加载差异中…",
       "unavailable": "该文件无法预览差异。"
+    },
+    "openAnyway": "仍要打开",
+    "binaryFile": "二进制文件",
+    "fileTooLarge": "文件过大",
+    "syntaxDisabled": "语法功能已禁用",
+    "previewUnsupported": "不支持预览",
+    "formatFailed": "语言服务器格式化失败",
+    "formatSkipped": "已跳过保存时格式化",
+    "formatSkippedLspDesc": "当前语言服务器不提供格式化器。请在设置中选择外部格式化工具（Python 用 Ruff，或 Prettier、rustfmt 等）。",
+    "formatSkippedNoLspDesc": "此文件没有启用的语言服务器。可在状态栏启用一个，或在设置中选择外部格式化工具。",
+    "fileChangedOnDisk": "文件已在磁盘上被修改",
+    "wrapColumn": "换行列宽",
+    "wrapColumnDesc": "在此列宽处自动换行；编辑器更窄时会提前换行。",
+    "openLinkHint": "Cmd/Ctrl + 单击打开",
+    "fileChangedOnDiskDesc": "在你还有未保存更改时，{{name}} 已被其他程序修改。覆盖可保留你的版本。",
+    "aiDiff": {
+      "pendingReview": "待审查",
+      "applied": "已应用",
+      "rejected": "已拒绝",
+      "newFile": "新文件"
     }
   },
   "gitHistory": {
@@ -955,7 +1184,23 @@
     "openDiff": "打开差异",
     "openFile": "打开文件",
     "revealInFinder": "在访达中显示",
-    "revealInFileManager": "在文件管理器中显示"
+    "revealInFileManager": "在文件管理器中显示",
+    "followActiveContext": "跟随当前上下文",
+    "noRepoForFolder": "该文件夹不在任何 Git 仓库中。",
+    "resolveFailed": "无法解析 Git 仓库",
+    "fetchTitle": "获取远程更新。",
+    "noStaged": "没有已暂存的更改",
+    "noUnstaged": "没有未暂存的更改",
+    "waitAi": "请等待当前 AI 操作完成",
+    "generateMessage": "生成提交信息",
+    "pushConfigure": "请在终端中配置或发布该分支，以启用推送。",
+    "pushPullFirst": "请先拉取远程更改，再推送本地提交。",
+    "pushNoCommits": "没有可推送到 {{upstream}} 的本地提交。",
+    "pushTarget": "推送到 {{upstream}}。",
+    "loading": "加载中",
+    "waitForRepositoryLoad": "请等待所选仓库加载完成。",
+    "generateStageFirst": "先暂存更改才能生成提交信息",
+    "generateConnectProvider": "连接 AI 服务商后才能生成提交信息"
   },
   "sidebar": {
     "files": "文件",
@@ -977,7 +1222,8 @@
       "solarized": "Ethan Schoonover 的精密低眩光配色。",
       "tide": "深石板色配柔和青绿。",
       "sage": "沉静的森林绿 —— 平和柔和。",
-      "caffeine": "温暖咖啡色调 —— 奶油与浓缩咖啡。"
+      "caffeine": "温暖咖啡色调 —— 奶油与浓缩咖啡。",
+      "xcode": "Apple 系统配色，以 systemBlue 作为强调色。"
     }
   },
   "shortcuts": {
@@ -1036,7 +1282,10 @@
       "editor.undo": "撤销",
       "editor.redo": "重做",
       "editor.aiComplete": "触发 AI 补全",
-      "editor.codeComplete": "触发代码补全"
+      "editor.codeComplete": "触发代码补全",
+      "explorer": {
+        "toggleHidden": "切换显示隐藏文件"
+      }
     }
   }
 }

@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -7,30 +8,32 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import {
+  type OsNotificationResult,
+  testAgentOsNotification,
+} from "@/modules/agents/lib/notify";
 import { usePreferencesStore } from "@/modules/settings/preferences";
 import type { ThemePref } from "@/modules/settings/store";
 import {
+  setAgentNotificationSound,
   setAgentNotifications,
   setAutostart,
+  setConfirmCloseRunningTerminal,
   setDefaultWorkspaceEnv,
   setExplorerGitDecorations,
   setRestoreWindowState,
   setShowHidden,
   setTerminalCursorBlink,
+  setTerminalCursorStyle,
   setTerminalFontFamily,
   setTerminalFontSize,
   setTerminalFontWeight,
   setTerminalLetterSpacing,
   setTerminalScrollback,
   setTerminalShell,
-  setTerminalWebglEnabled,
+  setTerminalRenderer,
+  setTerminalScreenReader,
   setZoomLevel,
   TERMINAL_FONT_SIZES,
   TERMINAL_SCROLLBACK_PRESETS,
@@ -45,6 +48,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { invoke } from "@tauri-apps/api/core";
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
 import { useEffect, useState } from "react";
+import type { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 import { SectionHeader } from "../components/SectionHeader";
 import { SettingRow } from "../components/SettingRow";
@@ -60,10 +64,15 @@ const APPEARANCE: {
 ];
 
 const TERMINAL_FONT_WEIGHTS = [
-  { value: "normal", label: "Normal" },
-  { value: "500", label: "Medium" },
-  { value: "600", label: "Semi-Bold" },
-  { value: "bold", label: "Bold" },
+  { value: "normal", labelKey: "settings.general.fontWeightNormal" },
+  { value: "500", labelKey: "settings.general.fontWeightMedium" },
+  { value: "600", labelKey: "settings.general.fontWeightSemiBold" },
+  { value: "bold", labelKey: "settings.general.fontWeightBold" },
+] as const;
+const TERMINAL_CURSOR_STYLES = [
+  { value: "bar", labelKey: "settings.general.cursorBar" },
+  { value: "block", labelKey: "settings.general.cursorBlock" },
+  { value: "underline", labelKey: "settings.general.cursorUnderline" },
 ] as const;
 const LETTER_SPACINGS = [-4, -3, -2, -1, 0, 1, 2, 3, 4] as const;
 
@@ -72,6 +81,13 @@ const SHELL_AUTO = "auto";
 const ZOOM_MIN = 0.5;
 const ZOOM_MAX = 2.0;
 const ZOOM_STEP = 0.05;
+const NOTIFICATION_TEST_DELAY_MS = 2_000;
+
+type NotificationTestState =
+  | OsNotificationResult
+  | "idle"
+  | "waiting"
+  | "sending";
 
 export function GeneralSection() {
   const { t, i18n } = useTranslation();
@@ -83,10 +99,12 @@ export function GeneralSection() {
   const explorerGitDecorations = usePreferencesStore(
     (s) => s.explorerGitDecorations,
   );
-  const terminalWebglEnabled = usePreferencesStore(
-    (s) => s.terminalWebglEnabled,
+  const terminalRenderer = usePreferencesStore((s) => s.terminalRenderer);
+  const terminalScreenReader = usePreferencesStore(
+    (s) => s.terminalScreenReader,
   );
   const terminalCursorBlink = usePreferencesStore((s) => s.terminalCursorBlink);
+  const terminalCursorStyle = usePreferencesStore((s) => s.terminalCursorStyle);
   const terminalFontFamily = usePreferencesStore((s) => s.terminalFontFamily);
   const terminalFontWeight = usePreferencesStore((s) => s.terminalFontWeight);
   const terminalShell = usePreferencesStore((s) => s.terminalShell);
@@ -98,8 +116,27 @@ export function GeneralSection() {
   );
   const terminalFontSize = usePreferencesStore((s) => s.terminalFontSize);
   const terminalScrollback = usePreferencesStore((s) => s.terminalScrollback);
+  const confirmCloseRunningTerminal = usePreferencesStore(
+    (s) => s.confirmCloseRunningTerminal,
+  );
   const zoomLevel = usePreferencesStore((s) => s.zoomLevel);
   const agentNotifications = usePreferencesStore((s) => s.agentNotifications);
+  const agentNotificationSound = usePreferencesStore(
+    (s) => s.agentNotificationSound,
+  );
+  const [notificationTest, setNotificationTest] =
+    useState<NotificationTestState>("idle");
+  const notificationTestPending =
+    notificationTest === "waiting" || notificationTest === "sending";
+
+  const testNotification = async () => {
+    setNotificationTest("waiting");
+    await new Promise((resolve) =>
+      setTimeout(resolve, NOTIFICATION_TEST_DELAY_MS),
+    );
+    setNotificationTest("sending");
+    setNotificationTest(await testAgentOsNotification(agentNotificationSound));
+  };
 
   useEffect(() => {
     let alive = true;
@@ -238,31 +275,33 @@ export function GeneralSection() {
       <div className="flex flex-col gap-2">
         <Label>{t("settings.general.terminal")}</Label>
         <SettingRow
-          title={
-            <span className="inline-flex items-center gap-1.5">
-              {t("settings.general.webgl")}
-              <TooltipProvider delayDuration={200}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span
-                      className="cursor-help text-[11px] text-muted-foreground/70 leading-none"
-                      aria-label={t("settings.general.webglInfo")}
-                    >
-                      ⓘ
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-65 text-[11px]">
-                    {t("settings.general.webglTooltip")}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </span>
-          }
-          description={t("settings.general.webglDesc")}
+          title={t("settings.general.terminalRenderer")}
+          description={t("settings.general.terminalRendererDesc")}
+        >
+          <Select
+            value={terminalRenderer}
+            onValueChange={(value) =>
+              void setTerminalRenderer(value === "webgl" ? "webgl" : "auto")
+            }
+          >
+            <SelectTrigger className="h-8 w-36 text-[12px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="auto">
+                {t("settings.general.terminalRendererAuto")}
+              </SelectItem>
+              <SelectItem value="webgl">WebGL</SelectItem>
+            </SelectContent>
+          </Select>
+        </SettingRow>
+        <SettingRow
+          title={t("settings.general.screenReader")}
+          description={t("settings.general.screenReaderDesc")}
         >
           <Switch
-            checked={terminalWebglEnabled}
-            onCheckedChange={(v) => void setTerminalWebglEnabled(v)}
+            checked={terminalScreenReader}
+            onCheckedChange={(value) => void setTerminalScreenReader(value)}
           />
         </SettingRow>
         <SettingRow
@@ -273,6 +312,33 @@ export function GeneralSection() {
             checked={terminalCursorBlink}
             onCheckedChange={(v) => void setTerminalCursorBlink(v)}
           />
+        </SettingRow>
+        <SettingRow
+          title={t("settings.general.cursorStyle")}
+          description={t("settings.general.cursorStyleDesc")}
+        >
+          <Select
+            value={terminalCursorStyle}
+            onValueChange={(v) => void setTerminalCursorStyle(v)}
+          >
+            <SelectTrigger
+              value={terminalCursorStyle}
+              className="h-8 w-28 text-[12px]"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {TERMINAL_CURSOR_STYLES.map((style) => (
+                <SelectItem
+                  key={style.value}
+                  value={style.value}
+                  className="text-[12px]"
+                >
+                  {t(style.labelKey)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </SettingRow>
         <FontFamilyInput
           value={terminalFontFamily}
@@ -299,7 +365,7 @@ export function GeneralSection() {
                   value={w.value}
                   className="text-[12px]"
                 >
-                  {w.label}
+                  {t(w.labelKey)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -309,10 +375,10 @@ export function GeneralSection() {
           title={t("settings.general.integratedShell")}
           description={
             shells.find((s) => s.path === terminalShell)?.integrated === false
-              ? "Command blocks and directory tracking are unavailable for this shell."
+              ? t("settings.general.shellNoTrack")
               : wslDistros.length > 0
-                ? "Shell for the integrated terminal. WSL spaces use the distro login shell. Existing tabs keep their shell."
-                : "Shell for new terminal tabs. Existing tabs keep their shell."
+                ? t("settings.general.shellWsl")
+                : t("settings.general.shellDefault")
           }
         >
           <Select
@@ -342,7 +408,7 @@ export function GeneralSection() {
         {(wslDistros.length > 0 || defaultWorkspaceEnv !== "local") && (
           <SettingRow
             title={t("settings.general.workspaceEnv")}
-            description="Where new spaces run, terminal and AI agent alike: Windows or a WSL distro. Existing spaces keep theirs; switch any from the status bar."
+            description={t("settings.general.workspaceEnvDesc")}
           >
             <Select
               value={defaultWorkspaceEnv}
@@ -441,11 +507,22 @@ export function GeneralSection() {
                   value={String(lines)}
                   className="text-[12px]"
                 >
-                  {lines.toLocaleString()} lines
+                  {t("settings.general.lineCount", {
+                    count: lines.toLocaleString(),
+                  })}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+        </SettingRow>
+        <SettingRow
+          title={t("settings.general.confirmClose")}
+          description={t("settings.general.confirmCloseDesc")}
+        >
+          <Switch
+            checked={confirmCloseRunningTerminal}
+            onCheckedChange={(v) => void setConfirmCloseRunningTerminal(v)}
+          />
         </SettingRow>
       </div>
 
@@ -455,9 +532,35 @@ export function GeneralSection() {
           title={t("settings.general.agentNotifications")}
           description={t("settings.general.agentNotificationsDesc")}
         >
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="xs"
+              disabled={!agentNotifications || notificationTestPending}
+              title={notificationTestTitle(notificationTest, t)}
+              onClick={() => void testNotification()}
+            >
+              {notificationTestLabel(notificationTest, t)}
+            </Button>
+            <Switch
+              checked={agentNotifications}
+              disabled={notificationTestPending}
+              onCheckedChange={(v) => {
+                setNotificationTest("idle");
+                void setAgentNotifications(v);
+              }}
+            />
+          </div>
+        </SettingRow>
+        <SettingRow
+          title={t("settings.general.notificationSound")}
+          description={t("settings.general.notificationSoundDesc")}
+        >
           <Switch
-            checked={agentNotifications}
-            onCheckedChange={(v) => void setAgentNotifications(v)}
+            checked={agentNotificationSound}
+            disabled={!agentNotifications || notificationTestPending}
+            onCheckedChange={(v) => void setAgentNotificationSound(v)}
           />
         </SettingRow>
       </div>
@@ -495,6 +598,44 @@ function Label({ children }: { children: React.ReactNode }) {
       {children}
     </span>
   );
+}
+
+function notificationTestLabel(
+  status: NotificationTestState,
+  t: TFunction,
+): string {
+  switch (status) {
+    case "waiting":
+      return t("settings.general.notifyTest.switchApps");
+    case "sending":
+      return t("settings.general.notifyTest.sending");
+    case "requested":
+      return t("settings.general.notifyTest.requested");
+    case "denied":
+      return t("settings.general.notifyTest.blocked");
+    case "failed":
+      return t("settings.general.notifyTest.failed");
+    default:
+      return t("settings.general.notifyTest.testIn2s");
+  }
+}
+
+function notificationTestTitle(
+  status: NotificationTestState,
+  t: TFunction,
+): string {
+  switch (status) {
+    case "waiting":
+      return t("settings.general.notifyTest.titleWaiting");
+    case "requested":
+      return t("settings.general.notifyTest.titleRequested");
+    case "denied":
+      return t("settings.general.notifyTest.titleBlocked");
+    case "failed":
+      return t("settings.general.notifyTest.titleFailed");
+    default:
+      return t("settings.general.notifyTest.titleIdle");
+  }
 }
 
 function FontFamilyInput({

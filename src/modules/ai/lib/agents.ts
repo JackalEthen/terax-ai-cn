@@ -116,6 +116,14 @@ export function newAgentId(): string {
   return `a-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 }
 
+/** Built-in agent ids look like "builtin:coder"; locale keys drop the prefix. */
+export function builtinAgentKey(
+  id: string,
+  field: "name" | "description",
+): string {
+  return `ai.builtinAgents.${id.replace("builtin:", "")}.${field}`;
+}
+
 export function findAgent(
   agents: readonly Agent[],
   id: string | null | undefined,

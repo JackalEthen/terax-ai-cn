@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - uses: pnpm/action-setup@v6
 
@@ -52,15 +54,38 @@ jobs:
         run: pnpm knip
         continue-on-error: true
 
+  terminal-platforms:
+    name: terminal-test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Terminal models, input, blocks, transport, and renderer lifecycle
+        run: pnpm exec vitest run src/modules/terminal
+
   rust:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Install Linux build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            fish \
             libwebkit2gtk-4.1-dev \
             libgtk-3-dev \
             librsvg2-dev \
@@ -74,7 +99,7 @@ jobs:
         with:
           workspaces: ./src-tauri -> target
 
-      - uses: taiki-e/install-action@v2
+      - uses: taiki-e/install-action@v2.87.9
         with:
           tool: cargo-nextest,cargo-machete
 
@@ -95,6 +120,9 @@ jobs:
         working-directory: src-tauri
         run: cargo nextest run --locked
 
+      - name: fish shell integration
+        run: fish --no-config src-tauri/src/modules/pty/scripts/init.test.fish
+
   rust-platforms:
     name: rust-test (${{ matrix.os }})
     strategy:
@@ -104,6 +132,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - uses: dtolnay/rust-toolchain@stable
 
@@ -111,7 +141,7 @@ jobs:
         with:
           workspaces: ./src-tauri -> target
 
-      - uses: taiki-e/install-action@v2
+      - uses: taiki-e/install-action@v2.87.9
         with:
           tool: cargo-nextest
 
@@ -128,6 +158,8 @@ jobs:
     needs: rust
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Install Linux build dependencies
         run: |
@@ -147,7 +179,7 @@ jobs:
           workspaces: ./src-tauri -> target
           key: coverage
 
-      - uses: taiki-e/install-action@v2
+      - uses: taiki-e/install-action@v2.87.9
         with:
           tool: cargo-llvm-cov,cargo-nextest
 

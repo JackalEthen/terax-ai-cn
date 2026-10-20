@@ -1,9 +1,10 @@
 import { resolveFontFamily } from "@/lib/fonts";
 import { fmtShortcut, MOD_KEY } from "@/lib/platform";
 import { cn } from "@/lib/utils";
-import { usePreferencesStore } from "@/modules/settings/preferences";
+import { useTheme } from "@/modules/theme";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { runScopeHandlers } from "@codemirror/view";
 import {
   clearLeafBlockSelection,
   getLeafDraft,
@@ -11,7 +12,10 @@ import {
   setLeafDraft,
   setLeafInputActivity,
   setLeafInputFocus,
-} from "../lib/useTerminalSession";
+  setLeafInputKeyDown,
+  setLeafInputPaste,
+} from "../lib/terminalSessionApi";
+import { useTerminalFont } from "../lib/useTerminalFont";
 import {
   historyCommands,
   historyList,
@@ -26,8 +30,6 @@ type Props = {
   leafId: number;
   mode: BlockMode;
   focused: boolean;
-  /** Changes when the active theme changes, so the editor re-themes. */
-  themeKey: string;
   onSubmit: (text: string) => void;
   onInterrupt: () => void;
   getCwd: () => string | null;
@@ -37,7 +39,6 @@ export default function ShellInput({
   leafId,
   mode,
   focused,
-  themeKey,
   onSubmit,
   onInterrupt,
   getCwd,
@@ -64,11 +65,15 @@ export default function ShellInput({
     };
   }, []);
 
-  const fontFamilyPref = usePreferencesStore((p) => p.terminalFontFamily);
-  const fontSize = usePreferencesStore((p) => p.terminalFontSize);
+  const {
+    fontFamily: fontFamilyPref,
+    fontSize,
+    fontWeight,
+  } = useTerminalFont();
+  const { activeTheme, resolvedMode } = useTheme();
   const fontFamily = resolveFontFamily(fontFamilyPref);
-  const fontRef = useRef({ fontFamily, fontSize });
-  fontRef.current = { fontFamily, fontSize };
+  const fontRef = useRef({ fontFamily, fontSize, fontWeight });
+  fontRef.current = { fontFamily, fontSize, fontWeight };
 
   useEffect(() => {
     const host = hostRef.current;
@@ -77,6 +82,7 @@ export default function ShellInput({
       parent: host,
       fontFamily: fontRef.current.fontFamily,
       fontSize: fontRef.current.fontSize,
+      fontWeight: fontRef.current.fontWeight,
       placeholderText: `${t("terminal.shellInput.runCommand")}  -  ↑ ${t("terminal.shellInput.history")}  ${fmtShortcut(MOD_KEY, "U")} ${t("terminal.shellInput.switchAi")}`,
       commandNames: () => commandsRef.current,
       getCwd: () => cbRef.current.getCwd(),
@@ -88,7 +94,7 @@ export default function ShellInput({
         historyRecord(text);
         const first = text.trim().split(/\s+/)[0];
         if (first && !commandsRef.current.includes(first)) {
-          commandsRef.current = [first, ...commandsRef.current];
+          commandsRef.current = [first, ...commandsRef.current.slice(0, 1999)];
         }
         cbRef.current.onSubmit(text);
       },
@@ -96,8 +102,14 @@ export default function ShellInput({
       onEscape: () => clearLeafBlockSelection(leafIdRef.current),
     });
     handleRef.current = handle;
-    requestAnimationFrame(() => handleRef.current?.focus());
+    const frame = requestAnimationFrame(() => {
+      if (focusableRef.current) handleRef.current?.focus();
+    });
     return () => {
+      cancelAnimationFrame(frame);
+      const value = handle.getValue();
+      setLeafDraft(leafIdRef.current, value);
+      setLeafInputActivity(leafIdRef.current, value.length > 0);
       handle.destroy();
       handleRef.current = null;
     };
@@ -108,6 +120,18 @@ export default function ShellInput({
   // tabs land with the cursor already in the input.
   useEffect(() => {
     setLeafInputFocus(leafId, () => handleRef.current?.focus());
+    setLeafInputKeyDown(leafId, (event) => {
+      const view = handleRef.current?.view;
+      if (!view) return false;
+      view.focus();
+      return runScopeHandlers(view, event, "editor");
+    });
+    setLeafInputPaste(leafId, (text) => {
+      const view = handleRef.current?.view;
+      if (!view) return;
+      view.dispatch(view.state.replaceSelection(text));
+      view.focus();
+    });
     handleRef.current?.setValue(getLeafDraft(leafId));
     requestAnimationFrame(() => {
       if (focusableRef.current && leafIdRef.current === leafId) {
@@ -115,23 +139,25 @@ export default function ShellInput({
       }
     });
     return () => {
-      const value = handleRef.current?.getValue() ?? "";
+      const value = handleRef.current?.getValue() ?? getLeafDraft(leafId);
       setLeafDraft(leafId, value);
       setLeafInputActivity(leafId, value.length > 0);
       setLeafInputFocus(leafId, null);
+      setLeafInputKeyDown(leafId, null);
+      setLeafInputPaste(leafId, null);
     };
   }, [leafId]);
 
   useEffect(() => {
-    void themeKey;
-    handleRef.current?.retheme(fontFamily, fontSize);
-  }, [fontFamily, fontSize, themeKey]);
+    void activeTheme;
+    void resolvedMode;
+    handleRef.current?.retheme(fontFamily, fontSize, fontWeight);
+  }, [fontFamily, fontSize, fontWeight, activeTheme, resolvedMode]);
 
   useEffect(() => {
     const handle = handleRef.current;
     if (!handle) return;
     handle.setEditable(atPrompt);
-    if (atPrompt) handle.focus();
   }, [atPrompt]);
 
   useEffect(() => {
@@ -139,7 +165,7 @@ export default function ShellInput({
   }, [focused, atPrompt]);
 
   // The editor holds focus at the prompt, so a Cmd+C over a grid selection lands
-  // here, not on the xterm. Copy the grid selection unless the editor has its own.
+  // in the shell editor. Copy the grid selection unless the editor has its own.
   const onCopyCapture = (e: React.ClipboardEvent) => {
     const view = handleRef.current?.view;
     if (view && !view.state.selection.main.empty) return;
@@ -156,7 +182,12 @@ export default function ShellInput({
     >
       <span
         className="select-none pt-px text-primary/80"
-        style={{ fontFamily, fontSize: `${fontSize}px`, lineHeight: 1.5 }}
+        style={{
+          fontFamily,
+          fontSize: `${fontSize}px`,
+          fontWeight,
+          lineHeight: 1.5,
+        }}
       >
         ❯
       </span>

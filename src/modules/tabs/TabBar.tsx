@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -14,15 +13,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { fmtShortcut, MOD_KEY, SHIFT_KEY } from "@/lib/platform";
 import { cn } from "@/lib/utils";
+import { AgentIcon } from "@/modules/agents/lib/agentIcon";
+import type { AgentLaunchRequest } from "@/modules/agents/lib/launcher";
 import {
   ALL_LANGUAGES,
   EXPOSED_LANGUAGES,
 } from "@/modules/editor/lib/languageDefinitions";
 import { resolveDisplayName } from "@/modules/editor/lib/languageResolver";
 import { fileIconUrl } from "@/modules/explorer/lib/iconResolver";
-import { AgentIcon } from "@/modules/agents/lib/agentIcon";
 import {
   leafIds,
   ptyIdForLeaf,
@@ -30,17 +29,17 @@ import {
   useAgentActivityStore,
 } from "@/modules/terminal";
 import {
+  ArrowRight01Icon,
   Cancel01Icon,
+  CancelCircleIcon,
   CheckmarkCircle01Icon,
   Clock01Icon,
   ComputerTerminal02Icon,
-  GitBranchIcon,
   GitCompareIcon,
   Globe02Icon,
   IncognitoIcon,
   Message02Icon,
   PencilEdit02Icon,
-  PlusSignIcon,
   Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -55,6 +54,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { labelFor } from "./lib/tabLabel";
 import type { EditorTab, Tab } from "./lib/useTabs";
+import { NewTabMenu } from "./NewTabMenu";
 
 type Props = {
   tabs: Tab[];
@@ -66,7 +66,12 @@ type Props = {
   onNewPreview: () => void;
   onNewEditor: () => void;
   onNewGitGraph: () => void;
+  onLaunchAgents: (request: AgentLaunchRequest) => void;
   onClose: (id: number) => void;
+  /** Chrome-style: close every tab to the right of the given tab. */
+  onCloseTabsToRight: (id: number) => void;
+  /** Chrome-style: close every tab except the given tab. */
+  onCloseOtherTabs: (id: number) => void;
   /** Pin (promote) a preview tab to persistent on double-click. */
   onPin: (id: number) => void;
   /** Set a terminal tab's custom label; empty string resets to default. */
@@ -87,7 +92,10 @@ export function TabBar({
   onNewPreview,
   onNewEditor,
   onNewGitGraph,
+  onLaunchAgents,
   onClose,
+  onCloseTabsToRight,
+  onCloseOtherTabs,
   onPin,
   onRename,
   onReorder,
@@ -233,7 +241,8 @@ export function TabBar({
               }
             />
             {tabs.map((t, i) => {
-              const isPreview = t.kind === "editor" && (t as EditorTab).preview;
+              const isPreview =
+                (t.kind === "editor" || t.kind === "git-diff") && t.preview;
               const isActive = t.id === activeId;
               const isNew = !firstRender && !seen.has(t.id);
 
@@ -368,6 +377,11 @@ export function TabBar({
                             role="button"
                             tabIndex={-1}
                             data-no-drag
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
                             className="inline-flex shrink-0 cursor-pointer items-center justify-center rounded-sm p-1 -m-1 transition-all hover:bg-accent hover:text-accent-foreground hover:ring-1 hover:ring-primary/30 hover:shadow-[0_0_4px_var(--color-popover-foreground)]"
                           >
                             <TabIcon tab={t} />
@@ -395,9 +409,11 @@ export function TabBar({
                               alt=""
                             />
                             <div className="flex flex-1 flex-col">
-                              <span>{tr('tabs.autoDetect')}</span>
+                              <span>{tr("tabs.autoDetect")}</span>
                               <span className="text-[10px] text-muted-foreground italic">
-                                {tr('tabs.mode', { name: resolveDisplayName(t.title) })}
+                                {tr("tabs.mode", {
+                                  name: resolveDisplayName(t.title),
+                                })}
                               </span>
                             </div>
                             {!(t as EditorTab).overrideLanguage && (
@@ -415,8 +431,8 @@ export function TabBar({
                             className="w-full px-2.5 py-1.5 text-left text-xs text-primary/60 hover:text-primary rounded-lg transition-colors hover:bg-accent"
                           >
                             {showAllLanguages
-                              ? tr('tabs.fewerLanguages')
-                              : tr('tabs.allLanguages')}
+                              ? tr("tabs.fewerLanguages")
+                              : tr("tabs.allLanguages")}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator className="my-1 border-t border-border/30" />
                           {(showAllLanguages
@@ -460,7 +476,7 @@ export function TabBar({
                     </span>
                     {t.kind === "editor" && t.dirty ? (
                       <span
-                        aria-label={tr('tabs.unsavedChanges')}
+                        aria-label={tr("tabs.unsavedChanges")}
                         className="size-1.5 shrink-0 rounded-full bg-foreground/70"
                       />
                     ) : null}
@@ -468,8 +484,16 @@ export function TabBar({
                   {tabs.length > 1 && (
                     <span
                       role="button"
-                      aria-label={tr('tabs.closeTab')}
+                      aria-label={tr("tabs.closeTab")}
                       data-no-drag
+                      onPointerDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
                       onClick={(e) => {
                         e.stopPropagation();
                         onClose(t.id);
@@ -486,46 +510,73 @@ export function TabBar({
                 </TabsTrigger>
               );
 
-              const tabNode =
-                t.kind === "terminal" ? (
-                  <ContextMenu>
-                    <ContextMenuTrigger asChild>{trigger}</ContextMenuTrigger>
-                    <ContextMenuContent
-                      className="min-w-32 p-1"
-                      onCloseAutoFocus={(e) => e.preventDefault()}
+              const hasTabsToRight = i < tabs.length - 1;
+
+              const tabNode = (
+                <ContextMenu>
+                  <ContextMenuTrigger asChild>{trigger}</ContextMenuTrigger>
+                  <ContextMenuContent
+                    className="min-w-32 p-1"
+                    onCloseAutoFocus={(e) => e.preventDefault()}
+                  >
+                    {t.kind === "terminal" && (
+                      <>
+                        <ContextMenuItem
+                          className="gap-2 rounded-xl px-2.5 py-1.5 text-[13px]"
+                          onSelect={() => setEditingId(t.id)}
+                        >
+                          <HugeiconsIcon
+                            icon={PencilEdit02Icon}
+                            size={13}
+                            strokeWidth={1.75}
+                          />
+                          <span className="flex-1">{tr("tabs.rename")}</span>
+                        </ContextMenuItem>
+                        {tabs.length > 1 && (
+                          <>
+                            <ContextMenuSeparator />
+                            <ContextMenuItem
+                              className="gap-2 rounded-xl px-2.5 py-1.5 text-[13px]"
+                              onSelect={() => onClose(t.id)}
+                            >
+                              <HugeiconsIcon
+                                icon={Cancel01Icon}
+                                size={13}
+                                strokeWidth={1.75}
+                              />
+                              <span className="flex-1">{tr("common.close")}</span>
+                            </ContextMenuItem>
+                          </>
+                        )}
+                      </>
+                    )}
+                    <ContextMenuItem
+                      className="gap-2 rounded-xl px-2.5 py-1.5 text-[13px]"
+                      disabled={!hasTabsToRight}
+                      onSelect={() => onCloseTabsToRight(t.id)}
                     >
-                      <ContextMenuItem
-                        className="gap-2 rounded-xl px-2.5 py-1.5 text-[13px]"
-                        onSelect={() => setEditingId(t.id)}
-                      >
-                        <HugeiconsIcon
-                          icon={PencilEdit02Icon}
-                          size={13}
-                          strokeWidth={1.75}
-                        />
-                        <span className="flex-1">{tr('tabs.rename')}</span>
-                      </ContextMenuItem>
-                      {tabs.length > 1 && (
-                        <>
-                          <ContextMenuSeparator />
-                          <ContextMenuItem
-                            className="gap-2 rounded-xl px-2.5 py-1.5 text-[13px]"
-                            onSelect={() => onClose(t.id)}
-                          >
-                            <HugeiconsIcon
-                              icon={Cancel01Icon}
-                              size={13}
-                              strokeWidth={1.75}
-                            />
-                            <span className="flex-1">{tr('common.close')}</span>
-                          </ContextMenuItem>
-                        </>
-                      )}
-                    </ContextMenuContent>
-                  </ContextMenu>
-                ) : (
-                  trigger
-                );
+                      <HugeiconsIcon
+                        icon={ArrowRight01Icon}
+                        size={13}
+                        strokeWidth={1.75}
+                      />
+                      <span className="flex-1">{tr("tabs.closeTabsToRight")}</span>
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      className="gap-2 rounded-xl px-2.5 py-1.5 text-[13px]"
+                      disabled={tabs.length <= 1}
+                      onSelect={() => onCloseOtherTabs(t.id)}
+                    >
+                      <HugeiconsIcon
+                        icon={CancelCircleIcon}
+                        size={13}
+                        strokeWidth={1.75}
+                      />
+                      <span className="flex-1">{tr("tabs.closeOtherTabs")}</span>
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
+              );
 
               return (
                 <Fragment key={t.id}>
@@ -539,83 +590,15 @@ export function TabBar({
             })}
           </TabsList>
         </Tabs>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-7 shrink-0 rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
-              title={tr('tabs.newTab')}
-            >
-              <HugeiconsIcon icon={PlusSignIcon} size={14} strokeWidth={2} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="start"
-            className="min-w-44"
-            onCloseAutoFocus={(e) => e.preventDefault()}
-          >
-            <DropdownMenuItem onSelect={() => onNew()}>
-              <HugeiconsIcon
-                icon={ComputerTerminal02Icon}
-                size={14}
-                strokeWidth={1.75}
-              />
-              <span className="flex-1">{tr('tabs.terminal')}</span>
-              <span className="text-xs text-muted-foreground">
-                {fmtShortcut(MOD_KEY, "T")}
-              </span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => onNewBlock()}>
-              <HugeiconsIcon
-                icon={ComputerTerminal02Icon}
-                size={14}
-                strokeWidth={1.75}
-              />
-              <span className="flex-1">{tr('tabs.blocks')}</span>
-              <span className="text-xs text-muted-foreground">
-                {fmtShortcut(MOD_KEY, SHIFT_KEY, "T")}
-              </span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => onNewPrivate()}>
-              <HugeiconsIcon
-                icon={IncognitoIcon}
-                size={14}
-                strokeWidth={1.75}
-              />
-              <span className="flex-1">{tr('tabs.privacy')}</span>
-              <span className="text-xs text-muted-foreground">
-                {fmtShortcut(MOD_KEY, "R")}
-              </span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => onNewEditor()}>
-              <HugeiconsIcon
-                icon={PencilEdit02Icon}
-                size={14}
-                strokeWidth={1.75}
-              />
-              <span className="flex-1">{tr('tabs.editor')}</span>
-              <span className="text-xs text-muted-foreground">
-                {fmtShortcut(MOD_KEY, "E")}
-              </span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => onNewPreview()}>
-              <HugeiconsIcon icon={Globe02Icon} size={14} strokeWidth={1.75} />
-              <span className="flex-1">{tr('tabs.preview')}</span>
-              <span className="text-xs text-muted-foreground">
-                {fmtShortcut(MOD_KEY, "P")}
-              </span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => onNewGitGraph()}>
-              <HugeiconsIcon
-                icon={GitBranchIcon}
-                size={14}
-                strokeWidth={1.75}
-              />
-              <span className="flex-1">{tr('tabs.gitGraph')}</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <NewTabMenu
+          onNew={onNew}
+          onNewBlock={onNewBlock}
+          onNewPrivate={onNewPrivate}
+          onNewPreview={onNewPreview}
+          onNewEditor={onNewEditor}
+          onNewGitGraph={onNewGitGraph}
+          onLaunchAgents={onLaunchAgents}
+        />
       </div>
     </div>
   );
@@ -735,8 +718,13 @@ export function TabIcon({ tab }: { tab: Tab }) {
       />
     );
   }
-  if (agentStatus.state === "working" && agentStatus.agent) {
-    return <AgentIcon agent={agentStatus.agent} size={14} className="shrink-0" />;
+  if (
+    (agentStatus.state === "working" || agentStatus.state === "idle") &&
+    agentStatus.agent
+  ) {
+    return (
+      <AgentIcon agent={agentStatus.agent} size={14} className="shrink-0" />
+    );
   }
   return (
     <HugeiconsIcon
@@ -791,7 +779,7 @@ function TabRenameInput({
     <input
       ref={ref}
       defaultValue={initial}
-      aria-label={tr('tabs.renameTab')}
+      aria-label={tr("tabs.renameTab")}
       className={cn(
         "w-28 min-w-0 rounded-sm bg-background px-1 text-xs text-foreground",
         "outline-none ring-1 ring-border focus:ring-ring",

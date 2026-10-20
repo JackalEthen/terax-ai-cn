@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useChatStore } from "../store/chatStore";
 import { usePreferencesStore } from "@/modules/settings/preferences";
@@ -40,6 +41,7 @@ export function useWhisperRecording({
 }: {
   onResult: (text: string) => void;
 }) {
+  const { t } = useTranslation();
   const apiKeys = useChatStore((s) => s.apiKeys);
   const sttProvider = usePreferencesStore((s) => s.sttProvider);
   const groqSttModel = usePreferencesStore((s) => s.groqSttModel);
@@ -110,11 +112,21 @@ export function useWhisperRecording({
       setState("recording");
     } catch (e) {
       console.error("stt.getUserMedia", e);
-      toast.error("Microphone access failed");
+      toast.error(t("ai.voice.micFailed"));
       teardownStream();
       setState("idle");
     }
-  }, [apiKeys, sttProvider, sttOptions, onResult, state, supported, hasKey]);
+  }, [
+    apiKeys,
+    sttProvider,
+    sttOptions,
+    onResult,
+    state,
+    supported,
+    hasKey,
+    teardownStream,
+    t,
+  ]);
 
   useEffect(() => {
     return () => {

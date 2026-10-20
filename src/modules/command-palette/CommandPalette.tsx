@@ -376,7 +376,7 @@ export function CommandPalette({
                     <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px]">
                       {hint.sigil}
                     </kbd>
-                    <span>{hint.label}</span>
+                    <span>{t(hint.labelKey, hint.label)}</span>
                   </CommandItem>
                 ))}
               </CommandGroup>

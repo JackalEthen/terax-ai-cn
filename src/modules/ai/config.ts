@@ -673,6 +673,11 @@ export function isKnownModelId(id: string): id is ModelId {
   return MODELS.some((x) => x.id === id);
 }
 
+/** i18next treats "." as a key separator, so flatten dots out of model ids. */
+export function modelDescriptionKey(id: string): string {
+  return `ai.modelDescriptions.${id.replace(/\./g, "-")}`;
+}
+
 const FREEFORM_PROVIDERS: ReadonlySet<ProviderId> = new Set([
   "openrouter",
   "openai-compatible",

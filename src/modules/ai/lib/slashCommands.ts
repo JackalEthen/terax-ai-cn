@@ -3,6 +3,7 @@ import {
   ClaudeIcon,
   SparklesIcon,
 } from "@hugeicons/core-free-icons";
+import i18n from "@/i18n";
 import { usePlanStore } from "../store/planStore";
 
 /**
@@ -45,6 +46,7 @@ export type SlashCommandMeta = {
   name: string;
   invocation: string;
   label: string;
+  labelKey: string;
   icon: typeof SparklesIcon;
 };
 
@@ -53,18 +55,21 @@ export const SLASH_COMMANDS: Record<string, SlashCommandMeta> = {
     name: "init",
     invocation: "/init",
     label: "Initialize workspace",
+    labelKey: "ai.slashCommands.initWorkspace",
     icon: SparklesIcon,
   },
   plan: {
     name: "plan",
     invocation: "/plan",
     label: "Plan mode",
+    labelKey: "ai.slashCommands.planMode",
     icon: CheckListIcon,
   },
   "claude-code": {
     name: "claude-code",
     invocation: "/claude-code",
     label: "Delegate to Claude Code",
+    labelKey: "ai.slashCommands.delegateToClaudeCode",
     icon: ClaudeIcon,
   },
 };
@@ -89,13 +94,15 @@ export function tryRunSlashCommand(input: string): SlashOutcome {
       const store = usePlanStore.getState();
       if (tail === "off" || tail === "exit") {
         store.disable();
-        return { kind: "handled", toast: "Plan mode off" };
+        return { kind: "handled", toast: i18n.t("ai.slashCommands.planModeOff") };
       }
       store.toggle();
       const nowActive = usePlanStore.getState().active;
       return {
         kind: "handled",
-        toast: nowActive ? "Plan mode on" : "Plan mode off",
+        toast: nowActive
+          ? i18n.t("ai.slashCommands.planModeOn")
+          : i18n.t("ai.slashCommands.planModeOff"),
       };
     }
     case "init": {
@@ -107,7 +114,10 @@ export function tryRunSlashCommand(input: string): SlashOutcome {
     }
     case "claude-code": {
       if (!tail) {
-        return { kind: "handled", toast: "Usage: /claude-code <request>" };
+        return {
+          kind: "handled",
+          toast: i18n.t("ai.slashCommands.usageClaudeCode"),
+        };
       }
       return {
         kind: "send-prompt",

@@ -28,7 +28,9 @@
     "collapse": "Collapse",
     "expand": "Expand",
     "retry": "Retry",
-    "searching": "Searching…"
+    "searching": "Searching…",
+    "checking": "Checking…",
+    "overwrite": "Overwrite"
   },
   "settings": {
     "tabs": {
@@ -93,7 +95,39 @@
       "shellNoTrack": "Command blocks and directory tracking are unavailable for this shell.",
       "shellWsl": "Shell for the integrated terminal. WSL spaces use the distro login shell. Existing tabs keep their shell.",
       "shellDefault": "Shell for new terminal tabs. Existing tabs keep their shell.",
-      "workspaceEnvDesc": "Where new spaces run, terminal and AI agent alike: Windows or a WSL distro. Existing spaces keep theirs; switch any from the status bar."
+      "workspaceEnvDesc": "Where new spaces run, terminal and AI agent alike: Windows or a WSL distro. Existing spaces keep theirs; switch any from the status bar.",
+      "terminalRenderer": "Terminal renderer",
+      "terminalRendererDesc": "Automatic uses WebGPU with WebGL fallback. Choose WebGL for graphics compatibility. Applies to new terminals.",
+      "terminalRendererAuto": "Automatic",
+      "screenReader": "Screen reader support",
+      "screenReaderDesc": "Expose terminal output as accessible text. Page Up and Page Down browse history when the output region is focused.",
+      "notificationSound": "Notification sound",
+      "notificationSoundDesc": "Play a sound with agent notifications and in-app alerts.",
+      "cursorStyle": "Cursor style",
+      "cursorStyleDesc": "Shape of the terminal cursor.",
+      "cursorBar": "Bar",
+      "cursorBlock": "Block",
+      "cursorUnderline": "Underline",
+      "fontWeightNormal": "Normal",
+      "fontWeightMedium": "Medium",
+      "fontWeightSemiBold": "Semi-Bold",
+      "fontWeightBold": "Bold",
+      "lineCount": "{{count}} lines",
+      "confirmClose": "Confirm before killing a running process",
+      "confirmCloseDesc": "Ask before closing a terminal tab or quitting while a command is still running. Unsaved editor changes are always confirmed.",
+      "notifyTest": {
+        "switchApps": "Switch apps...",
+        "sending": "Sending...",
+        "requested": "Requested",
+        "blocked": "Blocked",
+        "failed": "Failed",
+        "testIn2s": "Test in 2s",
+        "titleWaiting": "Switch to another app to verify native delivery",
+        "titleRequested": "The native notification was requested",
+        "titleBlocked": "Notifications are disabled by the system",
+        "titleFailed": "Terax could not request a native notification",
+        "titleIdle": "Send a native test notification after two seconds"
+      }
     },
     "shortcuts": {
       "title": "Shortcuts",
@@ -156,7 +190,28 @@
       "provider": "Provider",
       "sttOpenaiDesc": "Uses your official OpenAI API key and the Whisper model for transcription.",
       "sttGroqDesc": "Uses your official Groq API key and Groq's Whisper endpoint for transcription.",
-      "sttWhispercppDesc": "Connects to a local Whisper.cpp server for fully offline transcription."
+      "sttWhispercppDesc": "Connects to a local Whisper.cpp server for fully offline transcription.",
+      "providers": {
+        "lmstudio": {
+          "description": "Run GGUF models via LM Studio's HTTP server (Developer tab → enable).",
+          "modelHint": "The model id loaded in LM Studio — see the server's <1>/v1/models</1> page."
+        },
+        "mlx": {
+          "description": "Apple-silicon inference via mlx_lm.server (pip install mlx-lm).",
+          "modelHint": "The Hugging Face repo path you launched mlx_lm.server with."
+        },
+        "ollama": {
+          "description": "Local models via Ollama's built-in OpenAI-compatible API.",
+          "modelHint": "The model name from `ollama list` / `ollama pull`."
+        },
+        "openai-compatible": {
+          "description": "Any OpenAI-compatible endpoint — vLLM, Z.AI, Fireworks, etc."
+        },
+        "openrouter": {
+          "description": "Any model on OpenRouter — type its full provider/model id.",
+          "modelHint": "Browse ids at <1>openrouter.ai/models</1>."
+        }
+      }
     },
     "agents": {
       "title": "Agents",
@@ -467,7 +522,9 @@
       "new": "new",
       "createDir": "create directory",
       "noLineChanges": "no line-level changes",
-      "moreChanges": "… {{count}} more changes"
+      "moreChanges": "… {{count}} more changes",
+      "toggleDiff": "Toggle diff",
+      "reject": "Reject"
     },
     "todoStrip": {
       "todos": "Todos"
@@ -488,7 +545,9 @@
       "initWorkspace": "Initialize workspace",
       "planMode": "Plan mode",
       "planModeOff": "Plan mode off",
-      "planModeOn": "Plan mode on"
+      "planModeOn": "Plan mode on",
+      "delegateToClaudeCode": "Delegate to Claude Code",
+      "usageClaudeCode": "Usage: /claude-code <request>"
     },
     "sessions": {
       "newChat": "New chat"
@@ -564,6 +623,78 @@
       "opacity": "Opacity",
       "blur": "Blur",
       "backgroundHint": "Drop an image here or pick one. Stored locally; doesn't affect the default look until set."
+    },
+    "voice": {
+      "micFailed": "Microphone access failed"
+    },
+    "modelDescriptions": {
+      "gpt-5-6": "Frontier model for complex professional and agentic work.",
+      "gpt-5-6-terra": "Strong intelligence with lower cost and latency.",
+      "gpt-5-6-luna": "Fast, affordable reasoning for high-volume work.",
+      "gpt-5-5": "Frontier reasoning and code.",
+      "gpt-5-5-pro": "Highest-accuracy version for the hardest professional and agentic tasks.",
+      "gpt-5-4-mini": "Snappy default at low cost.",
+      "gpt-5-4-nano": "Tiny and instant — great for autocomplete.",
+      "gpt-5-3-codex": "Tuned for code and tool use.",
+      "gpt-4-1-mini": "Ultra-cheap workhorse for bulk tasks.",
+      "claude-fable-5": "Most capable Claude for demanding reasoning and long-horizon agentic work.",
+      "claude-sonnet-5": "Best combination of Claude intelligence and speed.",
+      "claude-opus-4-8": "Anthropic's most capable model for complex reasoning and long-horizon agentic coding.",
+      "claude-opus-4-7": "Previous-gen flagship for long reasoning.",
+      "claude-sonnet-4-6": "Sweet spot of quality and speed.",
+      "claude-haiku-4-5": "Quick, cheap, multimodal.",
+      "claude-opus-4-6": "Previous-gen Opus.",
+      "gemini-3-5-flash": "High-intelligence, extremely fast multimodal model.",
+      "gemini-3-1-flash-lite": "Extremely fast, cheap, and lightweight multimodal model.",
+      "gemini-3-1-pro-preview": "Strong reasoning, 1M context.",
+      "gemini-3-flash-preview": "Fast multimodal, 1M context.",
+      "gemini-2-5-pro": "Production-stable Gemini.",
+      "gemini-2-5-flash": "Bulk throughput at low cost.",
+      "grok-4-5": "Frontier coding, agentic, and knowledge-work model.",
+      "grok-4-20-reasoning": "Frontier reasoning with extended thinking.",
+      "grok-4-20-non-reasoning": "Fast tier for chat and tools.",
+      "grok-4-fast-reasoning": "Cheaper Grok 4 with vision and reasoning.",
+      "grok-4-3": "Most intelligent and fastest Grok. Strong agentic tool use and 1M context.",
+      "grok-build-0-1": "Specialized fast coding model for agentic workflows (powers Grok Build CLI).",
+      "deepseek-v4-pro": "Strong open-weight code model.",
+      "deepseek-v4-flash": "Cheap and fast everyday tier.",
+      "deepseek-reasoner": "Chain-of-thought at open-weight prices.",
+      "mistral-large-latest": "Flagship Mistral model with 128K context.",
+      "mistral-medium-latest": "Good balance of speed and intelligence.",
+      "codestral-latest": "Purpose-built coding model from Mistral.",
+      "gpt-oss-120b": "Fastest inference on Cerebras silicon.",
+      "llama3-3-70b": "Meta's open model on wafer-scale silicon.",
+      "qwen-3-32b": "Multilingual model at extreme speed.",
+      "openai/gpt-oss-20b": "Sub-second responses on Groq LPU.",
+      "llama-3-3-70b-versatile": "Fast and broadly capable.",
+      "deepseek-r1-distill-llama-70b": "Reasoning-distilled Llama on Groq.",
+      "openrouter-custom": "Any model on OpenRouter by id.",
+      "openai-compatible-custom": "Any OpenAI-compatible endpoint.",
+      "lmstudio-local": "Local GGUF models via LM Studio.",
+      "mlx-local": "Apple-silicon models via mlx_lm.server.",
+      "ollama-local": "Local models via Ollama."
+    },
+    "builtinAgents": {
+      "coder": {
+        "name": "Coder",
+        "description": "General-purpose coding assistant. Writes, edits, and runs."
+      },
+      "architect": {
+        "name": "Architect",
+        "description": "Design and tradeoffs. Plans before code."
+      },
+      "reviewer": {
+        "name": "Code Reviewer",
+        "description": "Reviews diffs for correctness, perf, security."
+      },
+      "security": {
+        "name": "Security",
+        "description": "Threat-models changes and flags vulns."
+      },
+      "designer": {
+        "name": "Designer",
+        "description": "UI/UX critique and refinement."
+      }
     }
   },
   "header": {
@@ -664,6 +795,43 @@
       "Search": "Search",
       "View": "View",
       "AI": "AI"
+    },
+    "commands": {
+      "openSettings": "Open settings",
+      "changeTheme": "Change theme...",
+      "keyboardShortcuts": "Keyboard shortcuts",
+      "spacesOverview": "Spaces: Overview",
+      "newSpace": "New Space",
+      "switchSpace": "Switch to {{name}}",
+      "newTerminal": "New terminal",
+      "newBlockTerminal": "New block terminal",
+      "newPrivateTerminal": "New private terminal",
+      "newEditorTab": "New editor tab",
+      "newWebPreview": "New web preview",
+      "closeTabOrPane": "Close tab or pane",
+      "splitRight": "Split pane right",
+      "splitDown": "Split pane down",
+      "openGitGraph": "Open git graph",
+      "toggleSourceControl": "Toggle source control",
+      "findContentInFiles": "Find content in files",
+      "searchCommandHistory": "Search command history",
+      "findInCurrentTab": "Find in current tab",
+      "searchFilesByName": "Search files by name",
+      "toggleFileExplorer": "Toggle file explorer",
+      "toggleHiddenFiles": "Toggle hidden files",
+      "toggleAiAgent": "Toggle AI agent",
+      "askAiSelection": "Ask AI about selection"
+    },
+    "disabled": {
+      "noTerminalTab": "No terminal tab",
+      "paneLimit": "Pane limit",
+      "lastTab": "Last tab",
+      "noSearchableView": "No searchable view",
+      "currentSpace": "Current space"
+    },
+    "modeHints": {
+      "history": "Search command history",
+      "content": "Find text in files"
     }
   },
   "lsp": {
@@ -719,7 +887,8 @@
     "shellInput": {
       "runCommand": "Run a command",
       "history": "history",
-      "switchAi": "switch to AI"
+      "switchAi": "switch to AI",
+      "typeDirectly": "Type directly in the terminal"
     },
     "overlay": {
       "exit": "exit {{code}}",
@@ -732,8 +901,20 @@
       "copyCommandAndOutput": "Copy command and output",
       "blockCopied": "Block copied",
       "attachToAi": "Attach to AI chat",
-      "findInBlock": "Find in block"
-    }
+      "findInBlock": "Find in block",
+      "searchFailed": "Could not search this block"
+    },
+    "accessibleOutput": "Terminal output. Page Up and Page Down browse history.",
+    "dropFileHere": "Drop file path here",
+    "error": {
+      "rendererTitle": "Unable to display terminal",
+      "startTitle": "Unable to start terminal",
+      "sessionPreserved": "Your terminal session is preserved. Retry to restore its display.",
+      "retryDisplay": "Retry display"
+    },
+    "outputPaused": "Terminal output paused",
+    "outputFailedDesc": "The terminal could not process output. Reopen this terminal to recover.",
+    "outputStalledDesc": "Waiting for the terminal connection. Delivery will resume automatically."
   },
   "statusbar": {
     "private": "Private: hidden from AI",
@@ -745,7 +926,8 @@
     "wslUnavailable": "WSL unavailable",
     "noWslDistros": "No WSL distros found",
     "refresh": "Refresh",
-    "noDirectory": "no directory"
+    "noDirectory": "no directory",
+    "showHiddenFolders": "Show hidden folders"
   },
   "tabs": {
     "unsavedChanges": "Unsaved changes",
@@ -763,7 +945,9 @@
     "fewerLanguages": "↑ Fewer languages",
     "allLanguages": "↓ All languages",
     "renameTab": "Rename tab",
-    "agents": "Agents"
+    "agents": "Agents",
+    "closeTabsToRight": "Close tabs to the right",
+    "closeOtherTabs": "Close other tabs"
   },
   "explorer": {
     "noCurrentDir": "No current directory",
@@ -786,7 +970,13 @@
     "searching": "Searching…",
     "noMatches": "No matches",
     "partialResults": "Showing partial results — refine your query.",
-    "open": "Open"
+    "open": "Open",
+    "openInSourceControl": "Open in Source Control",
+    "openGitHistory": "Open Git History",
+    "deleteFailed": "Delete failed for one or more items",
+    "closeDestinationFirst": "Close destination before replacing",
+    "moveFailedSome": "Some items could not be moved",
+    "moveFailed": "Move failed"
   },
   "preview": {
     "enterUrl": "Enter a URL or pick a port preset.",
@@ -800,7 +990,11 @@
     "embedWarning": "Many public sites refuse to embed (X-Frame-Options). If the page is blank, open it externally.",
     "suspended": "Preview suspended",
     "suspendedDesc": "Released to free memory after sitting in the background.",
-    "nothingToPreview": "Nothing to preview yet"
+    "nothingToPreview": "Nothing to preview yet",
+    "cookieNotice": "Cookie-based sign-in may not work in preview.",
+    "cookieNoticeTitle": "Cookie-based sign-in may not work in the sandboxed preview.",
+    "dismissCookieNotice": "Dismiss cookie sign-in notice",
+    "emptyHint": "Type a URL above, or open the Ports dropdown to jump straight to your running dev server. Public sites often block embedding. Open them in your browser via the link icon if you see a blank page."
   },
   "shortcutsDialog": {
     "title": "Keyboard shortcuts",
@@ -838,7 +1032,22 @@
     "closeTerminalTitle": "Close Terminal?",
     "closeTerminalDesc": "A process is running. Closing this tab will terminate it.",
     "quitTitle": "Quit Terax?",
-    "quitAnyway": "Quit Anyway"
+    "quitAnyway": "Quit Anyway",
+    "optOutRunningProcesses": "Don't ask again about running processes",
+    "closeManyDirtyTitle": "\"{{title}}\" has unsaved changes. Close it anyway?",
+    "closeManyDirtySingle": "1 tab has unsaved changes. Close it anyway?",
+    "closeManyDirtyCount_one": "1 tab has unsaved changes",
+    "closeManyDirtyCount_other": "{{count}} tabs have unsaved changes",
+    "closeManyBusyCount_one": "a process is running",
+    "closeManyBusyCount_other": "{{count}} processes are running",
+    "closeManyDirtyAndBusy_one": "{{dirty}} and {{busy}}. Closing will discard the changes and terminate the process. Close anyway?",
+    "closeManyDirtyAndBusy_other": "{{dirty}} and {{busy}}. Closing will discard the changes and terminate the processes. Close anyway?",
+    "closeManyDirty_one": "1 tab has unsaved changes. Closing will discard them. Close anyway?",
+    "closeManyDirty_other": "{{count}} tabs have unsaved changes. Closing will discard them. Close anyway?",
+    "closeManyBusyRight_one": "A process is running in a tab to the right. Closing will terminate it. Close anyway?",
+    "closeManyBusyRight_other": "{{count}} processes are running in tabs to the right. Closing will terminate them. Close anyway?",
+    "closeManyBusy_one": "A process is running in another tab. Closing will terminate it. Close anyway?",
+    "closeManyBusy_other": "{{count}} processes are running in other tabs. Closing will terminate them. Close anyway?"
   },
   "window": {
     "minimize": "Minimize",
@@ -865,6 +1074,26 @@
       "largeFileBadge": "Large file / patch view",
       "loading": "Loading diff…",
       "unavailable": "Diff preview is not available for this file."
+    },
+    "openAnyway": "Open anyway",
+    "binaryFile": "Binary file",
+    "fileTooLarge": "File too large",
+    "syntaxDisabled": "syntax features disabled",
+    "previewUnsupported": "preview not supported",
+    "formatFailed": "Language server format failed",
+    "formatSkipped": "Format on save skipped",
+    "formatSkippedLspDesc": "The active language server has no formatter. Pick an external one in Settings (Ruff for Python, Prettier, rustfmt, ...).",
+    "formatSkippedNoLspDesc": "No active language server for this file. Enable one in the statusbar, or pick an external formatter in Settings.",
+    "fileChangedOnDisk": "File changed on disk",
+    "wrapColumn": "Wrap column",
+    "wrapColumnDesc": "Soft-wrap at this column, or earlier when the editor is narrower.",
+    "openLinkHint": "Cmd/Ctrl+Click to open",
+    "fileChangedOnDiskDesc": "{{name}} was modified by another program while you had unsaved changes. Overwrite to keep your version.",
+    "aiDiff": {
+      "pendingReview": "Pending review",
+      "applied": "Applied",
+      "rejected": "Rejected",
+      "newFile": "New file"
     }
   },
   "gitHistory": {
@@ -959,7 +1188,23 @@
     "openDiff": "Open Diff",
     "openFile": "Open File",
     "revealInFinder": "Reveal in Finder",
-    "revealInFileManager": "Reveal in File Manager"
+    "revealInFileManager": "Reveal in File Manager",
+    "followActiveContext": "Follow Active Context",
+    "noRepoForFolder": "No Git repository contains this folder.",
+    "resolveFailed": "Could not resolve Git repository",
+    "fetchTitle": "Fetch remote updates.",
+    "noStaged": "No staged changes",
+    "noUnstaged": "No unstaged changes",
+    "waitAi": "Wait for the current AI action to finish",
+    "generateMessage": "Generate commit message",
+    "pushConfigure": "Configure or publish this branch in the terminal to enable push in this iteration.",
+    "pushPullFirst": "Pull remote changes before pushing local commits.",
+    "pushNoCommits": "No local commits to push to {{upstream}}.",
+    "pushTarget": "Pushes to {{upstream}}.",
+    "loading": "Loading",
+    "waitForRepositoryLoad": "Wait for the selected repository to finish loading.",
+    "generateStageFirst": "Stage changes to generate a commit message",
+    "generateConnectProvider": "Connect an AI provider to generate commit messages"
   },
   "themes": {
     "descriptions": {
@@ -977,7 +1222,8 @@
       "solarized": "Ethan Schoonover's precision low-glare palette.",
       "tide": "Deep slate with muted teal.",
       "sage": "Muted forest green — calm and soft.",
-      "caffeine": "Warm coffee tones — cream and espresso."
+      "caffeine": "Warm coffee tones — cream and espresso.",
+      "xcode": "Apple's system colors with a systemBlue accent."
     }
   },
   "shortcuts": {
@@ -1036,7 +1282,10 @@
       "editor.undo": "Undo",
       "editor.redo": "Redo",
       "editor.aiComplete": "Trigger AI completion",
-      "editor.codeComplete": "Trigger code completion"
+      "editor.codeComplete": "Trigger code completion",
+      "explorer": {
+        "toggleHidden": "Toggle hidden files"
+      }
     }
   }
 }

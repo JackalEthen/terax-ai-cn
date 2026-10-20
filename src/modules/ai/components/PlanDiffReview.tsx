@@ -132,7 +132,7 @@ function PlanRow({
             open && "rotate-180",
             isDir && "invisible",
           )}
-          aria-label="Toggle diff"
+          aria-label={t("ai.planReview.toggleDiff")}
         >
           <HugeiconsIcon icon={ArrowDown01Icon} size={11} strokeWidth={1.75} />
         </button>
@@ -178,7 +178,7 @@ function PlanRow({
           variant="ghost"
           className="size-5 shrink-0 opacity-0 transition-opacity group-hover/row:opacity-100"
           onClick={onReject}
-          aria-label="Reject"
+          aria-label={t("ai.planReview.reject")}
         >
           <HugeiconsIcon icon={Cancel01Icon} size={11} strokeWidth={1.75} />
         </Button>

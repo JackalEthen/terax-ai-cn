@@ -1,5 +1,12 @@
-import { Alert02Icon, Globe02Icon } from "@hugeicons/core-free-icons";
+import {
+  Alert02Icon,
+  Cancel01Icon,
+  Globe02Icon,
+  InformationCircleIcon,
+  LinkSquare02Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import {
   forwardRef,
   useEffect,
@@ -12,6 +19,7 @@ import {
   PreviewAddressBar,
   type PreviewAddressBarHandle,
 } from "./PreviewAddressBar";
+import { loopbackPreviewOrigin } from "./lib/previewUrl";
 
 export type PreviewPaneHandle = {
   reload: () => void;
@@ -37,6 +45,9 @@ export const PreviewPane = forwardRef<PreviewPaneHandle, Props>(
     // contentWindow.location.reload() throws on cross-origin frames).
     const [nonce, setNonce] = useState(0);
     const [loaded, setLoaded] = useState(visible);
+    const [dismissedCookieOrigin, setDismissedCookieOrigin] = useState<
+      string | null
+    >(null);
     const addressRef = useRef<PreviewAddressBarHandle>(null);
 
     useEffect(() => {
@@ -61,11 +72,14 @@ export const PreviewPane = forwardRef<PreviewPaneHandle, Props>(
       [url],
     );
 
-    const showXfoHint = url ? !isLocalUrl(url) : false;
+    const cookieOrigin = loopbackPreviewOrigin(url);
+    const showXfoHint = url ? cookieOrigin === null : false;
+    const showCookieHint =
+      cookieOrigin !== null && cookieOrigin !== dismissedCookieOrigin;
 
     return (
       <div
-        className="flex h-full w-full flex-col overflow-hidden rounded-md border border-border/60 bg-background"
+        className="flex h-full w-full flex-col overflow-hidden bg-background"
         style={{
           visibility: visible ? "visible" : "hidden",
           pointerEvents: visible ? "auto" : "none",
@@ -88,6 +102,46 @@ export const PreviewPane = forwardRef<PreviewPaneHandle, Props>(
             <span className="truncate">
               {t('preview.embedWarning')}
             </span>
+          </div>
+        ) : null}
+        {showCookieHint ? (
+          <div
+            role="note"
+            className="flex h-7 shrink-0 items-center gap-1.5 border-b border-border/60 bg-sky-500/8 px-3 text-[11px] text-sky-700 dark:text-sky-300"
+          >
+            <HugeiconsIcon
+              icon={InformationCircleIcon}
+              size={12}
+              strokeWidth={1.75}
+              className="shrink-0"
+            />
+            <span
+              className="min-w-0 flex-1 truncate"
+              title={t("preview.cookieNoticeTitle")}
+            >
+              {t("preview.cookieNotice")}
+            </span>
+            <button
+              type="button"
+              onClick={() => void openUrl(url).catch(console.error)}
+              className="flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 font-medium hover:bg-sky-500/15"
+            >
+              <HugeiconsIcon
+                icon={LinkSquare02Icon}
+                size={10}
+                strokeWidth={1.75}
+              />
+              {t("preview.openInBrowser")}
+            </button>
+            <button
+              type="button"
+              aria-label={t("preview.dismissCookieNotice")}
+              title={t("common.dismiss")}
+              onClick={() => setDismissedCookieOrigin(cookieOrigin)}
+              className="flex size-5 shrink-0 items-center justify-center rounded text-sky-700/70 hover:bg-sky-500/15 hover:text-sky-800 dark:text-sky-300/70 dark:hover:text-sky-200"
+            >
+              <HugeiconsIcon icon={Cancel01Icon} size={10} strokeWidth={2} />
+            </button>
           </div>
         ) : null}
         <div
@@ -169,31 +223,9 @@ function EmptyState() {
           {t('preview.nothingToPreview')}
         </p>
         <p className="max-w-sm text-xs leading-relaxed text-muted-foreground">
-          Type a URL above, or open the{" "}
-          <span className="rounded bg-muted px-1 py-0.5 font-mono text-[10.5px]">
-            Ports
-          </span>{" "}
-          dropdown to jump straight to your running dev server. Public sites
-          often block embedding — open them in your browser via the link icon
-          if you see a blank page.
+          {t("preview.emptyHint")}
         </p>
       </div>
     </div>
   );
-}
-
-function isLocalUrl(url: string): boolean {
-  try {
-    const u = new URL(url);
-    const h = u.hostname;
-    return (
-      h === "localhost" ||
-      h === "127.0.0.1" ||
-      h === "0.0.0.0" ||
-      h === "[::1]" ||
-      h.endsWith(".localhost")
-    );
-  } catch {
-    return false;
-  }
 }

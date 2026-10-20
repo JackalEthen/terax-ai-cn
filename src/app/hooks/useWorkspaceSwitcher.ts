@@ -109,6 +109,7 @@ export function useWorkspaceSwitcher({
       tabsRef,
       clearWorkspaceState,
       authorizeHome,
+      t,
     ],
   );
 

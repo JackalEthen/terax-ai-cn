@@ -14,6 +14,7 @@ import {
   type Agent,
   type AgentIconId,
   BUILTIN_AGENTS,
+  builtinAgentKey,
 } from "@/modules/ai/lib/agents";
 import {
   isValidHandle,
@@ -260,7 +261,9 @@ function AgentCard({
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="flex items-center gap-1.5 text-[12.5px] font-medium">
-            {agent.name}
+            {agent.builtIn
+              ? t(builtinAgentKey(agent.id, "name"), agent.name)
+              : agent.name}
             {agent.builtIn ? (
               <span className="rounded bg-muted/50 px-1 py-0.5 text-[9px] tracking-wide text-muted-foreground uppercase">
                 {t("settings.agents.builtin")}
@@ -268,7 +271,9 @@ function AgentCard({
             ) : null}
           </span>
           <span className="line-clamp-2 text-[10.5px] leading-relaxed text-muted-foreground">
-            {agent.description}
+            {agent.builtIn
+              ? t(builtinAgentKey(agent.id, "description"), agent.description)
+              : agent.description}
           </span>
         </div>
       </div>

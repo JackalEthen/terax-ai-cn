@@ -8,6 +8,7 @@ import { Cancel01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import CodeMirror, { type ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   buildSharedExtensions,
   DEFAULT_INDENT,
@@ -71,9 +72,9 @@ const DIFF_THEME = EditorView.theme({
 });
 
 const STATUS_LABEL: Record<AiDiffStatus, string> = {
-  pending: "Pending review",
-  approved: "Applied",
-  rejected: "Rejected",
+  pending: "editor.aiDiff.pendingReview",
+  approved: "editor.aiDiff.applied",
+  rejected: "editor.aiDiff.rejected",
 };
 
 const STATUS_BADGE: Record<
@@ -94,6 +95,7 @@ export function AiDiffPane({
   onAccept,
   onReject,
 }: Props) {
+  const { t } = useTranslation();
   const cmRef = useRef<ReactCodeMirrorRef>(null);
   const themeExt = useEditorThemeExt();
 
@@ -138,18 +140,18 @@ export function AiDiffPane({
   );
 
   return (
-    <div className="flex h-full min-h-0 flex-col rounded-md border border-border/60 bg-background">
+    <div className="flex h-full min-h-0 flex-col bg-background">
       <div className="flex h-9 shrink-0 items-center justify-between gap-2 border-b border-border/60 px-3">
         <div className="flex min-w-0 items-center gap-2">
           <Badge
             className="text-[11px] px-2.5 py-2.5"
             variant={STATUS_BADGE[status]}
           >
-            {STATUS_LABEL[status]}
+            {t(STATUS_LABEL[status])}
           </Badge>
           {isNewFile ? (
             <span className="shrink-0 rounded-full border border-border/60 bg-accent/40 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-              New file
+              {t("editor.aiDiff.newFile")}
             </span>
           ) : null}
           <span

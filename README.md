@@ -2,14 +2,7 @@
   <img src="public/logo.png" width="144" height="144" alt="Terax" />
   <h1>Terax 中文版</h1>
 
-  <p><strong>开源轻量级跨平台 AI 原生终端 (ADE)</strong></p>
-
-  <p>
-    <img src="https://img.shields.io/badge/版本-v0.8.6--cn-blue" alt="版本" />
-    <img src="https://img.shields.io/badge/协议-Apache--2.0-green" alt="协议" />
-    <img src="https://img.shields.io/badge/平台-Windows%20%7C%20Linux-lightgrey" alt="平台" />
-  </p>
-
+  <p><strong>开源轻量级、终端优先的 AI 原生开发工作区 (ADE)</strong></p>
   <p>
     <a href="https://github.com/crynta/terax-ai">原项目</a>
     ·
@@ -17,7 +10,27 @@
     ·
     <a href="https://terax.app/docs">文档</a>
   </p>
+
+  <p>
+    <img src="https://img.shields.io/badge/版本-v0.9.0--cn-blue" alt="版本" />
+    <img src="https://img.shields.io/badge/协议-Apache--2.0-green" alt="协议" />
+    <img src="https://img.shields.io/badge/平台-Windows%20%7C%20Linux-lightgrey" alt="平台" />
+  </p>
 </div>
+
+<p align="center">
+  <a href="docs/readme/README.zh-CN.md">简体中文</a> |
+  <a href="docs/readme/README.es.md">Español</a> |
+  <a href="docs/readme/README.de.md">Deutsch</a> |
+  <a href="docs/readme/README.fr.md">Français</a> |
+  <a href="docs/readme/README.ja.md">日本語</a> |
+  <a href="docs/readme/README.ko.md">한국어</a> |
+  <a href="docs/readme/README.pt-BR.md">Português</a> |
+  <a href="docs/readme/README.pl.md">Polski</a> |
+  <a href="docs/readme/README.ru.md">Русский</a> |
+  <a href="docs/readme/README.id.md">Bahasa Indonesia</a> |
+  <a href="docs/readme/README.hi.md">हिन्दी</a>
+</p>
 
 ---
 
@@ -34,13 +47,13 @@
 
 ## 项目简介
 
-Terax 是一款开源轻量级 AI 原生终端 (ADE)，基于 Tauri 2 + Rust 和 React 19 构建。它将原生 PTY 后端与 WebGL 渲染器相结合，集成了 AI 代理侧边面板（支持自带密钥或完全本地模型）、代码编辑器、文件资源管理器、源码管理（含 Git 图谱），以及网页预览面板。磁盘占用约 7-8 MB，无遥测，无需账号。
+Terax 是一款开源轻量级、终端优先的 AI 原生开发环境 (ADE)，基于 Tauri 2 + Rust 和 React 19 构建。它将原生 PTY 后端与 GPU 加速的块级终端相结合，集成了 AI 代理侧边面板（支持自带密钥或完全本地模型）、代码编辑器、文件资源管理器、源码管理（含 Git 图谱），以及网页预览面板。磁盘占用约 7-8 MB，无遥测，无需账号。
 
 ## 截图
 
 <table>
   <tr>
-    <td align="center"><img src="docs/terminal.png" alt="终端" /><br/><sub>多标签终端，支持 WebGL 渲染</sub></td>
+    <td align="center"><img src="docs/terminal.png" alt="终端" /><br/><sub>块级 WebGL 终端，类编辑器的命令输入面板</sub></td>
     <td align="center"><img src="docs/themes.png" alt="主题与背景" /><br/><sub>自定义主题、预设和背景图片</sub></td>
   </tr>
   <tr>
@@ -56,21 +69,24 @@ Terax 是一款开源轻量级 AI 原生终端 (ADE)，基于 Tauri 2 + Rust 和
 
 ### 终端
 
-- xterm.js + WebGL 渲染器，多标签支持后台流式传输
-- GPU 加速的块级终端，类编辑器命令输入体验
+- libghostty 块级终端，GPU 加速，类编辑器的命令输入体验
+- 多标签，支持后台流式传输
 - 通过 `portable-pty` 实现原生 PTY 后端（支持 zsh、bash、pwsh、fish、cmd）
 - 分屏面板（水平与垂直）
-- Shell 集成（当前目录报告、提示符标记）通过注入初始化脚本实现
-- 内联搜索、链接检测、真彩色支持
+- 内联搜索、链接检测、真彩色、屏幕阅读器可访问输出
+- 从资源管理器或桌面拖入文件，自动转为 shell 安全引号路径
 - Windows 下支持按标签设置工作区环境（本地或任意已安装的 WSL 发行版）
+- 工作区（Spaces）跨启动恢复标签、工作目录与分屏布局
 
 ### 代码编辑器
 
 - CodeMirror 6，支持所有主流语言（TS/JS、Rust、Python、Go、C/C++、Java、HTML/CSS、JSON、Markdown、Svelte 等）
 - 内联 AI 自动补全，支持本地模型
 - AI 编辑差异对比，可逐块接受或拒绝
+- 可选的语言服务器 (LSP)：诊断、跳转、补全、格式化，支持自定义服务器
+- Markdown 渲染预览，以及图片、视频、音频、PDF 查看
 - Vim 模式
-- 内置十款编辑器主题：Atom One、Aura、Copilot、GitHub Dark/Light、Gruvbox Dark、Nord、Tokyo Night、Xcode Dark/Light
+- 内置多款编辑器主题：Kanagawa、Catppuccin、Rosé Pine、Everforest、Dracula、Solarized、Nord、Tokyo Night、GitHub、Xcode
 
 ### 源码管理
 
@@ -84,6 +100,7 @@ Terax 是一款开源轻量级 AI 原生终端 (ADE)，基于 Tauri 2 + Rust 和
 
 - Catppuccin 图标主题
 - 模糊搜索、键盘导航、内联重命名、上下文操作
+- 磁盘文件变化时实时刷新
 - 可将文件和选区直接附加到 AI 侧边面板
 
 ### 网页预览
@@ -97,13 +114,14 @@ Terax 是一款开源轻量级 AI 原生终端 (ADE)，基于 Tauri 2 + Rust 和
 - 创建并分享主题，或从社区导入
 - 背景图片，支持透明度与模糊调节
 - 编辑器主题与应用主题独立设置
-- 主题可自定义终端字体（字族/字重/字号）
+- 终端字体（字族/字重/字号）、光标样式、渲染后端可自定义
 
 ### AI（自带密钥）
 
 - **支持的提供商：** OpenAI、Anthropic、Google (Gemini)、Groq、xAI (Grok)、Cerebras、OpenRouter、DeepSeek、Mistral，以及任意 OpenAI 兼容接口
 - **本地/离线：** LM Studio、MLX、Ollama
 - **代理工作流：** 计划、子代理、通过 `TERAX.md` 实现项目记忆、文件读写/编辑/批量编辑/grep/glob、带审批门控的 bash、后台进程
+- **编码代理编排：** 在终端中启动 Claude Code，查看其输出并通过审批门控工具派发后续任务
 - **Composer：** 通过 `#handle` 使用代码片段，通过 `@path` 引用文件，斜杠命令，语音输入，从资源管理器或选区附加到代理
 - **自定义代理：** 可自定义系统提示词和工具子集
 - **计划模式：** 多步骤工作，先生成计划再确认执行
@@ -126,7 +144,7 @@ Terax 是一款开源轻量级 AI 原生终端 (ADE)，基于 Tauri 2 + Rust 和
 
 | 版本 | 说明 |
 |------|------|
-| **v0.8.6-cn**（当前） | 基于上游 v0.8.6 |
+| **v0.9.0-cn**（当前） | 基于上游 v0.9.0 |
 | 历史 | 见 [Releases](https://github.com/JackalEthen/terax-ai-cn/releases) |
 
 ### Windows 注意事项
@@ -152,7 +170,7 @@ Terax 是一款开源轻量级 AI 原生终端 (ADE)，基于 Tauri 2 + Rust 和
 
 **前置要求**
 - Rust（stable）— https://rustup.rs
-- Node 20+ 和 [pnpm](https://pnpm.io)
+- Node 22+ 和 [pnpm](https://pnpm.io)
 - 平台特定的 Tauri 前置要求 — https://tauri.app/start/prerequisites/
 
 **运行**
@@ -173,7 +191,7 @@ cd src-tauri && cargo nextest run --locked                           # 或：car
 
 ## 技术栈
 
-Tauri 2 · Rust · `portable-pty` · React 19 · TypeScript · Vite · xterm.js · CodeMirror 6 · Vercel AI SDK v6 · Tailwind v4 · shadcn/ui · Zustand
+Tauri 2 · Rust · `portable-pty` · libghostty · React 19 · TypeScript · Vite · CodeMirror 6 · Vercel AI SDK v6 · Tailwind v4 · shadcn/ui · Zustand
 
 ## 贡献
 

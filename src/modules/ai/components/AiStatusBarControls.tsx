@@ -49,6 +49,7 @@ import {
   getModel,
   isCompatModelId,
   MODELS,
+  modelDescriptionKey,
   providerNeedsKey,
   PROVIDERS,
   STT_PROVIDER_LABELS,
@@ -280,13 +281,15 @@ function ModelDropdown() {
         (m) =>
           m.label.toLowerCase().includes(q) ||
           m.hint.toLowerCase().includes(q) ||
-          m.description.toLowerCase().includes(q) ||
+          t(modelDescriptionKey(m.id), m.description)
+            .toLowerCase()
+            .includes(q) ||
           m.provider.includes(q) ||
           (m.tags?.some((t) => t.includes(q)) ?? false),
       );
     }
     return pool;
-  }, [activeProvider, allModels, favoriteIds, recentIds, search, tab]);
+  }, [activeProvider, allModels, favoriteIds, recentIds, search, tab, t]);
 
   return (
     <DropdownMenu>
@@ -626,7 +629,7 @@ function ModelRow({
           {model.label}
         </span>
         <span className="truncate text-[10.5px] leading-none text-muted-foreground">
-          {model.description}
+          {t(modelDescriptionKey(model.id), model.description)}
         </span>
       </div>
 

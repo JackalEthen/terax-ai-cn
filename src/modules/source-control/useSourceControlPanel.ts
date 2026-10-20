@@ -18,6 +18,7 @@ import {
 } from "@/modules/editor/lib/diffCache";
 import { usePreferencesStore } from "@/modules/settings/preferences";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { SourceControlSummary } from "./useSourceControl";
 
 type PanelState = "closed" | "loading" | "no-repo" | "ready" | "error";
@@ -372,6 +373,7 @@ export function useSourceControlPanel(
 ): SourceControlPanelState {
   const selectedModelId = useChatStore((state) => state.selectedModelId);
   const agentStatus = useChatStore((state) => state.agentMeta.status);
+  const { t } = useTranslation();
   const hasApiKeyForSelected = useChatStore((state) => {
     const model = resolveModel(state.selectedModelId);
     return !providerNeedsKey(model.provider) || !!state.apiKeys[model.provider];
@@ -475,28 +477,28 @@ export function useSourceControlPanel(
   const anyActionBusy = localActionBusy !== null || summary.busyAction !== null;
   const aiUnavailableReason = useMemo(() => {
     if (stagedEntries.length === 0) {
-      return "Stage changes to generate a commit message";
+      return t("sourceControl.generateStageFirst");
     }
     if (!hasApiKeyForSelected) {
-      return "Connect an AI provider to generate commit messages";
+      return t("sourceControl.generateConnectProvider");
     }
     if (selectedModel.id === "lmstudio-local" && !lmstudioModelId.trim()) {
-      return "Connect an AI provider to generate commit messages";
+      return t("sourceControl.generateConnectProvider");
     }
     if (selectedModel.id === "mlx-local" && !mlxModelId.trim()) {
-      return "Connect an AI provider to generate commit messages";
+      return t("sourceControl.generateConnectProvider");
     }
     if (selectedModel.id === "ollama-local" && !ollamaModelId.trim()) {
-      return "Connect an AI provider to generate commit messages";
+      return t("sourceControl.generateConnectProvider");
     }
     if (
       selectedModel.id === "openai-compatible-custom" &&
       (!openaiCompatibleBaseURL.trim() || !openaiCompatibleModelId.trim())
     ) {
-      return "Connect an AI provider to generate commit messages";
+      return t("sourceControl.generateConnectProvider");
     }
     if (selectedModel.id === "openrouter-custom" && !openrouterModelId.trim()) {
-      return "Connect an AI provider to generate commit messages";
+      return t("sourceControl.generateConnectProvider");
     }
     return null;
   }, [
@@ -509,29 +511,30 @@ export function useSourceControlPanel(
     openrouterModelId,
     selectedModel,
     stagedEntries.length,
+    t,
   ]);
   const canGenerateCommitMessage =
     stagedEntries.length > 0 && !anyActionBusy && !aiBusy && !!repo;
   const generateCommitMessageHint = aiUnavailableReason
     ? aiUnavailableReason
     : aiBusy
-      ? "Wait for the current AI action to finish"
-      : "Generate commit message";
+      ? t("sourceControl.waitAi")
+      : t("sourceControl.generateMessage");
   const pushHint = useMemo(() => {
     if (!status) return null;
     if (!status.upstream) {
-      return "Configure or publish this branch in the terminal to enable push in this iteration.";
+      return t("sourceControl.pushConfigure");
     }
     if (status.behind > 0) {
-      return "Pull remote changes before pushing local commits.";
+      return t("sourceControl.pushPullFirst");
     }
     if (status.ahead === 0) {
-      return `No local commits to push to ${status.upstream}.`;
+      return t("sourceControl.pushNoCommits", { upstream: status.upstream });
     }
-    return `Pushes to ${status.upstream}.`;
-  }, [status]);
-  const stagedEmptyText = "No staged changes";
-  const unstagedEmptyText = "No unstaged changes";
+    return t("sourceControl.pushTarget", { upstream: status.upstream });
+  }, [status, t]);
+  const stagedEmptyText = t("sourceControl.noStaged");
+  const unstagedEmptyText = t("sourceControl.noUnstaged");
 
   const cancelReconcile = useCallback(() => {
     if (reconcileTimerRef.current) {
